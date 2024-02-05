@@ -5,7 +5,7 @@ import Modal from 'react-modal';
 import Image from 'next/image';
 import CustomYoutubePlayer from './CustomYoutube';
 const PlayButton = () => (
-  <img src='/images/playButton.svg' alt='playbutton' width={70} height={70} />
+  <img src='/images/playbuttontest.svg' alt='playbutton' width={70} height={70} />
 );
 
 const VideoPlayer = ({ videoId, caption, onClose }) => {
@@ -42,17 +42,21 @@ const VideoPlayer = ({ videoId, caption, onClose }) => {
     <div
       style={{
         position: 'relative',
-        width: '380px',
+        width: '280px',
         borderRadius: '10px',
         border: '1px solid #000',
+        backgroundColor: '#8C74B2',
         overflow: 'hidden',
         zIndex: 1,
       }}
+      className='flex flex-col p-[10px]'
     >
       <img
         src={thumbnailUrl}
         alt="Video Thumbnail"
-        style={{ width: '100%', height: '180px', objectFit: 'cover' }}
+        style={{ width: '260px', height: '142px', objectFit: 'cover',  borderRadius: '10px', }}
+        className='mt-[10px]'
+       
       />
       <div
         style={{
@@ -61,12 +65,14 @@ const VideoPlayer = ({ videoId, caption, onClose }) => {
           left: '50%',
           transform: 'translate(-50%, -50%)',
           cursor: 'pointer',
+          width: '50px',
+          height: '50px'
         }}
         onClick={openModal}
       >
         <PlayButton />
       </div>
-      <p style={{ margin: '8px 10px 0', fontSize: '14px', fontWeight: 'bold' }}>
+      <p className='mt-[8px]'>
         {caption}
       </p>
 
@@ -120,8 +126,8 @@ const HomePageVideoContainer = () => {
   return (
     <>
       <Link
-        href="#"
-        className="mt-[150px] w-11/12 mx-auto flex justify-end mb-[16px] cursor-pointer font-medium text-[14px]"
+        href="/videos"
+        className="mt-[150px] w-10/12 mx-auto flex justify-end mb-[16px] cursor-pointer font-medium text-[14px]"
       >
         ყველას ნახვა
       </Link>
@@ -131,7 +137,7 @@ const HomePageVideoContainer = () => {
             key={index}
             videoId={video.videoId}
             caption={video.caption}
-            onClose={() => console.log('Modal closed')} // You can handle modal closing here
+            onClose={() => console.log('Modal closed')} 
           />
         ))}
       </div>
@@ -140,3 +146,5 @@ const HomePageVideoContainer = () => {
 };
 
 export default HomePageVideoContainer;
+
+

@@ -18,6 +18,8 @@
   }
 }
 
+
+
 body {
 margin: 0;
 padding: 0;
@@ -91,31 +93,12 @@ font-family: Noto Sans Georgian;
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
+  height: calc(100% - 50px);
 }
 
-.v-vlite .v-overlayLeft,
-.v-vlite .v-overlayRight {
-  position: absolute;
-  top: 0;
-  width: 50%; /* Adjust if needed */
-  height: 100%;
-}
 
-.v-vlite .v-overlayLeft {
-  left: 0;
-}
 
-.v-vlite .v-overlayRight {
-  right: 0;
-}
 
-.overlayVideo .v-overlayRight {
-  position: absolute;
-  top: 0;
-  width: 30%; /* Adjust if needed */
-  height: 100%;
-}
 
 
 .v-vlite a, .v-vlite div, .v-vlite form, .v-vlite label, .v-vlite li, .v-vlite p, .v-vlite span, .v-vlite ul {
@@ -130,30 +113,16 @@ font-family: Noto Sans Georgian;
   left: 0;
 }
 
-.v-vlite .v-overlayVideo .v-overlayLeft, .v-vlite .v-overlayVideo .v-overlayRight {
-  position: absolute;
-  top: 0;
-  width: 100%;
-  height: 100%;
-}
 
-.v-vlite .v-overlayVideo .v-overlayRight {
-  right: 0;
-}
 
-.overlayVideo .v-overlayRight {
-  position: absolute;
-  top: 0;
-  width: 30%;
-  height: 100%;
-}
+
+
 
 .v-vlite .v-loader {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+
   opacity: 0;
   visibility: hidden;
   z-index: 5;
@@ -206,15 +175,6 @@ font-family: Noto Sans Georgian;
   display: inline-block;
   -webkit-animation: loader 1.4s ease-in-out infinite both;
   animation: loader 1.4s ease-in-out infinite both;
-}
-
-.ytp-pause-overlay-container::shadow .ytp-pause-overlay[aria-hidden="true"] {
-  display: none !important;
-}
-
-.ytp-pause-overlay-container::shadow .ytp-pause-overlay, 
-.ytp-pause-overlay-container::shadow .ytp-suggestion-set {
-  display: none !important;
 }
 
 
@@ -327,7 +287,9 @@ svg {
 }
 
 
-.video-container .v-progressBar .v-progressSeek {
+
+
+.video-container .v-progressBar .v-progressSeek  {
   background: #8C74B2!important;
 }
 .v-vlite .v-progressBar .v-progressInput {
@@ -356,45 +318,49 @@ svg {
 
 
 .video-container .v-controlBarContent {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(11, 1fr);
+  grid-gap: 15px; /* Adjust the gap between items as needed */
   z-index: 5;
   align-items: center;
   justify-content: space-between;
   padding: 15px;
-  width: 100%; 
-  background-color: transparent;
+  width: 100%;
+  background-color: white;
 }
 
 .v-vlite .v-playPauseButton {
-  position: relative;
+  
   width: 30px;
   cursor: pointer;
   margin-right: 10px; 
 }
 
 .v-vlite .v-time {
+ 
   color: #fff;
   font-size: 12px;
 margin-right: 10px;
-  height: 100%;
-  display: flex;
-  align-items: center;
+
+  
+  
 }
 
 .video-container .v-time {
-  order: 2;
+
   padding-top: 3px;
   color: #8C74B2!important;
 }
 .v-vlite .v-volume {
-  order: 3;
+
   padding-left: 5%;
   position: relative;
   display: inline-block;
-  width: 50px; /* Adjust the width as needed */
+  width: 180px; /* Adjust the width as needed */
   height: 100%;
   cursor: pointer;
-  
+  display: flex;
+  flex-direction: row-reverse;
 }
 
 
@@ -407,9 +373,8 @@ margin-right: 10px;
 
 .v-vlite .v-volume .v-playerIcon {
   position: absolute;
-  margin-right: 10px;
+  
   top: 50%;
-  left: 50%;
   -webkit-transform: translateX(-50%) translateY(-50%);
   transform: translateX(-50%) translateY(-50%);
 }
@@ -420,13 +385,16 @@ margin-right: 10px;
   opacity: .85;
   width: 18px;
   height: 18px;
+ 
 }
+
+
 
 .v-vlite .v-volume .v-playerIcon {
  
   position: absolute;
   top: 50%;
-  left: 50%;
+  left: 30%;
   -webkit-transform: translateX(-50%) translateY(-50%);
   transform: translateX(-50%) translateY(-50%);
 }
@@ -440,16 +408,20 @@ margin-right: 10px;
   z-index: 100;
 }
 
+
+
 .v-vlite .v-fullscreen {
   position: relative;
   display: inline-block;
   width: 40px;
   height: 100%;
   cursor: pointer;
+  grid-column: 11;
+  
 }
 
 .video-container .v-fullscreen {
-  order: 3;
+  
   margin-left: auto;
 }
 
@@ -528,4 +500,41 @@ margin-right: 10px;
   z-index: 1001; /* Adjust the z-index to appear above the overlay */
 }
 
+.v-volume {
+  position: relative;
+  grid-column: 10;
+}
+
+input[type=range] {
+  -webkit-appearance: none;
+  width: 60%; /* Adjusted to fill the container */
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+  background: linear-gradient(to right, #8C74B2, #B6A8CD);
+  border-radius: 10px;
+  height: 8px;
+}
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: #8C74B2;
+  cursor: pointer;
+  margin-top: -4px;
+}
+
+input[type=range]:hover::-webkit-slider-thumb {
+  background: #B6A8CD;
+}
+
+/* Additional styles to remove default styles on Firefox */
+input[type="range"]::-moz-focus-inner {
+  border: 0;
+}
+input[type="range"]::-moz-focus-outer {
+  border: 0;
+}
 

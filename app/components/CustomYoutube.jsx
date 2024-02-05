@@ -4,16 +4,17 @@ import React, { useEffect, useRef, useState } from "react";
 
 export default function CustomYoutubePlayer({ videoId, onClose }) {
   const playerRef = useRef(null);
+  const volumeControlRef = useRef(null);
+
   const [player, setPlayer] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [progress, setProgress] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
-const [volume, setVolume] = useState(50);
+  const [volume, setVolume] = useState(50);
 
-
-  
+  let interval;
 
   function formatTime(timeInSeconds) {
     const minutes = Math.floor(timeInSeconds / 60);
@@ -23,50 +24,6 @@ const [volume, setVolume] = useState(50);
       "0"
     )}`;
   }
-
-  let interval;
-
-
-  const startInterval = () => {
-    clearInterval(interval);
-    interval = setInterval(() => {
-      if (player && typeof player.getCurrentTime === 'function') {
-        const currentTime = player.getCurrentTime();
-        setCurrentTime(currentTime);
-        const newProgress = (currentTime / duration) * 100;
-        console.log('Current Time:', currentTime);
-        console.log('New Progress:', newProgress);
-        setProgress(newProgress);
-      }
-    }, 1000);
-  };
-  
-  
-  useEffect(() => {
-    const handleTimeChange = (event) => {
-      if (
-        event.data === window.YT.PlayerState.PLAYING ||
-        event.data === window.YT.PlayerState.BUFFERING
-      ) {
-        startInterval();
-      } else {
-        clearInterval(interval);
-      }
-    };
-  
-    if (player && typeof player.addEventListener === 'function') {
-      player.addEventListener("onStateChange", handleTimeChange);
-    }
-  
-    return () => {
-      if (player && typeof player.removeEventListener === 'function') {
-        player.removeEventListener("onStateChange", handleTimeChange);
-      }
-    };
-  }, [player, interval]);
-  
-  
-  
 
   useEffect(() => {
     const loadPlayer = () => {
@@ -86,42 +43,21 @@ const [volume, setVolume] = useState(50);
             }
           },
           onReady: (event) => {
+            setPlayer(event.target);
             setDuration(event.target.getDuration());
-            event.target.setVolume(volume);
-        event.target.unMute();
-
-        if (event.target.getPlayerState() !== window.YT.PlayerState.PLAYING) {
-          // Only start playing and interval when the player is ready
-          event.target.playVideo();
-          startInterval();
-        }
-
-        
-          },
-          onPlaybackQualityChange: (event) => {
-            setDuration(event.target.getDuration());
-          },
-          onPlaybackRateChange: (event) => {
-            setDuration(event.target.getDuration());
-          },
-          onApiChange: (event) => {
-            setDuration(event.target.getDuration());
+            event.target.unMute();
+            if (
+              event.target.getPlayerState() !== window.YT.PlayerState.PLAYING
+            ) {
+              event.target.playVideo();
+            }
           },
         },
       });
 
       setPlayer(newPlayer);
-      setIsPlaying(false);
-      setCurrentTime(0);
-      setDuration(0);
-      setProgress(0);
-      setIsMuted(false);
-      setVolume(50);
-
-      
     };
 
-  
     if (!window.YT) {
       const tag = document.createElement("script");
       tag.src = "https://www.youtube.com/iframe_api";
@@ -133,33 +69,45 @@ const [volume, setVolume] = useState(50);
       loadPlayer();
     }
 
-    
- 
-
     return () => {
+      if (player) {
+        player.stopVideo(); // Stop the video before unmounting
+      }
       clearInterval(interval);
       window.onYouTubeIframeAPIReady = null;
     };
   }, [videoId]);
 
-  
+  useEffect(() => {
+    if (player && typeof player.getCurrentTime === "function") {
+      const interval = setInterval(() => {
+        const currentTime = player.getCurrentTime();
+        setCurrentTime(currentTime);
+        const newProgress = (currentTime / duration) * 100;
+        setProgress(newProgress);
 
+        const isPaused = player.getPlayerState() === window.YT.PlayerState.PAUSED;
+        const posterElement = document.querySelector(".v-poster");
 
-  
+        if (posterElement) {
+          posterElement.style.display = isPaused ? "block" : "none";
+        }
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }
+  }, [player, duration]);
+
   const togglePlayPause = () => {
-    if (player && typeof player.playVideo === 'function' && typeof player.pauseVideo === 'function') {
-      if (isPlaying) {
+    if (player && typeof player.getPlayerState === "function") {
+      const playerState = player.getPlayerState();
+
+      if (playerState === window.YT.PlayerState.PLAYING) {
         player.pauseVideo();
       } else {
         player.playVideo();
-        startInterval();
       }
     }
-  };
-  
-
-  const handleBigPlayButtonClick = () => {
-    togglePlayPause();
   };
 
   const handleFullscreenToggle = () => {
@@ -169,147 +117,104 @@ const [volume, setVolume] = useState(50);
       if (document.exitFullscreen) {
         document.exitFullscreen();
       } else if (document.mozCancelFullScreen) {
-        // Firefox
         document.mozCancelFullScreen();
       } else if (document.webkitExitFullscreen) {
-        // Chrome, Safari and Opera
         document.webkitExitFullscreen();
       } else if (document.msExitFullscreen) {
-        // IE/Edge
         document.msExitFullscreen();
       }
     } else {
       if (videoContainer.requestFullscreen) {
         videoContainer.requestFullscreen();
       } else if (videoContainer.mozRequestFullScreen) {
-        // Firefox
         videoContainer.mozRequestFullScreen();
       } else if (videoContainer.webkitRequestFullscreen) {
-        // Chrome, Safari and Opera
         videoContainer.webkitRequestFullscreen();
       } else if (videoContainer.msRequestFullscreen) {
-        // IE/Edge
         videoContainer.msRequestFullscreen();
       }
     }
   };
 
-  // Listen for fullscreen changes
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      if (!document.fullscreenElement) {
-        // Fullscreen exited
-        // You can perform any actions here when exiting fullscreen
-      }
-    };
-
-    document.addEventListener("fullscreenchange", handleFullscreenChange);
-
-    return () => {
-      document.removeEventListener("fullscreenchange", handleFullscreenChange);
-    };
-  }, []);
-
   const handleVideoOverlayClick = () => {
     togglePlayPause();
   };
 
-  useEffect(() => {
-    const handleTimeChange = (event) => {
-      if (
-        event.data === window.YT.PlayerState.PLAYING ||
-        event.data === window.YT.PlayerState.BUFFERING
-      ) {
-        startInterval();
-      } else {
-        clearInterval(interval);
-      }
-    };
-    
-    if (player && typeof player.addEventListener === 'function') {
-      player.addEventListener("onStateChange", handleTimeChange);
-    }
-    
-  
-    if (player && typeof player.addEventListener === 'function') {
-      player.addEventListener("onStateChange", handleTimeChange);
-    }
-  
-    return () => {
-      if (player && typeof player.removeEventListener === 'function') {
-        player.removeEventListener("onStateChange", handleTimeChange);
-      }
-    };
-  }, [player, interval]);
-  
-  
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-      // Check if the pressed key is 'F' (case-insensitive) and not inside an input element
-      if (event.key.toLowerCase() === 'f' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
-        handleFullscreenToggle();
-      }
-    };
-
-    // Add event listener for the 'keydown' event
-    document.addEventListener('keydown', handleKeyDown);
-
-    // Remove event listener when component unmounts
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, []); 
-
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-      // Check if the pressed key is the spacebar and not inside an input element
-      if (event.key === ' ' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
-        togglePlayPause();
-      }
-    };
-  
-    // Add event listener for the 'keydown' event
-    document.addEventListener('keydown', handleKeyDown);
-  
-    // Remove event listener when component unmounts
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [togglePlayPause]);
-
-  const toggleMute = () => {
-    if (player && typeof player.isMuted === 'function' && typeof player.unMute === 'function') {
-      if (isMuted) {
-        player.unMute();
-        setVolume(50); // Set to a default volume level when unmuting
-      } else {
-        player.mute();
-      }
-      setIsMuted(!isMuted);
-    }
-  };
-
-
   const handleSeek = (e) => {
     const seekToTime = (e.target.value / 100) * duration;
-    setProgress(e.target.value);
-    if (player && typeof player.seekTo === 'function') {
+
+    if (player && typeof player.seekTo === "function") {
       player.seekTo(seekToTime, true);
     }
+
     setCurrentTime(seekToTime);
+
+    const newProgress = (seekToTime / duration) * 100;
+    setProgress(newProgress);
+
+    updateSliderThumbWidth(newProgress);
   };
 
+  const updateSliderThumbWidth = (progress) => {
+    const rangeInput = volumeControlRef.current;
+    const thumb =
+      rangeInput && rangeInput.querySelector("::-webkit-slider-thumb");
+
+    if (thumb) {
+      // Calculate the new width of the thumb
+      const thumbWidth = 50 + progress * 0.5; // Adjust the multiplier as needed
+
+      // Apply the new width to the thumb
+      thumb.style.width = `${thumbWidth}px`;
+    }
+  };
 
   const handleOverlayClick = (e) => {
     const targetClassList = e.target.classList;
-  
-    // Check if the clicked element is not a descendant of the v-vlite v-paused div
-    if (!targetClassList.contains('v-vlite') && !targetClassList.contains('v-paused')) {
-      closeModal();
+
+    if (
+      !targetClassList.contains("v-vlite") &&
+      !targetClassList.contains("v-paused")
+    ) {
+      onClose();
     }
   };
+
+  const handleVolumeChange = (e) => {
+    const newVolume = parseInt(e.target.value, 10);
   
+    if (player && typeof player.setVolume === "function") {
+      player.setVolume(newVolume);
+    }
   
+    setVolume(newVolume);
+    setIsMuted(newVolume === 0);
+  };
+
+  
+
+
+  const toggleMute = () => {
+  if (
+    player &&
+    typeof player.isMuted === "function" &&
+    typeof player.unMute === "function"
+  ) {
+    if (isMuted) {
+      // Unmute and set volume to the previous non-zero volume
+      const previousVolume = volume === 0 ? 50 : volume;
+      player.unMute();
+      player.setVolume(previousVolume);
+      setVolume(previousVolume);
+    } else {
+      // Mute and set volume to 0
+      player.mute();
+      setVolume(0);
+    }
+    setIsMuted(!isMuted);
+  }
+};
+
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
@@ -326,17 +231,7 @@ const [volume, setVolume] = useState(50);
             data-v-toggle-play-pause=""
             onClick={handleVideoOverlayClick}
           >
-            <div
-              className="v-overlayLeft"
-              data-v-fast-forward=""
-              data-direction="left"
-            ></div>
-            <div
-              className="v-overlayRight"
-              data-v-fast-forward=""
-              data-direction="right"
-            ></div>
-            <div
+           <div
               className="v-poster"
               data-v-toggle-play-pause=""
               style={{
@@ -357,10 +252,15 @@ const [volume, setVolume] = useState(50);
             <div
               className="v-bigPlayButton"
               data-v-toggle-play-pause=""
-              onClick={handleBigPlayButtonClick}
+              onClick={handleVideoOverlayClick}
             >
               <span className="v-playerIcon v-iconBigPlay">
-              <img src='/images/playButton.svg' alt='playbutton' width={500} height={500} />
+                <img
+                  src="/images/playbuttontest.svg"
+                  alt="playbutton"
+                  width={500}
+                  height={500}
+                />
               </span>
             </div>
           )}
@@ -379,8 +279,7 @@ const [volume, setVolume] = useState(50);
                 step="0.01"
                 value={progress}
                 onChange={handleSeek}
-                onMouseDown={() => clearInterval(interval)} // Clear the interval during seeking
-                onMouseUp={() => startInterval()} // Restart the interval after seeking
+                onMouseDown={() => clearInterval(interval)}
                 orient="horizontal"
               />
             </div>
@@ -410,21 +309,35 @@ const [volume, setVolume] = useState(50);
                 <span className="v-duration">{formatTime(duration)}</span>
               </div>
               <div className="v-volume">
-  <span
-    className={`v-playerIcon ${isMuted ? 'v-iconVolumeMute' : 'v-iconVolumeHigh'}`}
-    onClick={toggleMute}
-  >
-    {isMuted ? (
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-        <path d="M13 30a1 1 0 0 1-.707-.293L4.586 22H1a1 1 0 0 1-1-1V11a1 1 0 0 1 1-1h3.586l7.707-7.707A1 1 0 0 1 14 3v26a1.002 1.002 0 0 1-1 1z"></path>
-      </svg>
-    ) : (
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 32">
-        <path d="M27.814 28.814a1.5 1.5 0 0 1-1.061-2.56C29.492 23.515 31 19.874 31 16.001s-1.508-7.514-4.247-10.253a1.5 1.5 0 1 1 2.121-2.121C32.179 6.932 34 11.327 34 16.001s-1.82 9.069-5.126 12.374a1.495 1.495 0 0 1-1.061.439zm-5.329-2.829a1.5 1.5 0 0 1-1.061-2.56c4.094-4.094 4.094-10.755 0-14.849a1.5 1.5 0 1 1 2.121-2.121c2.55 2.55 3.954 5.94 3.954 9.546s-1.404 6.996-3.954 9.546a1.495 1.495 0 0 1-1.061.439zm-5.328-2.828a1.5 1.5 0 0 1-1.061-2.56 6.508 6.508 0 0 0 0-9.192 1.5 1.5 0 1 1 2.121-2.121c3.704 3.704 3.704 9.731 0 13.435a1.495 1.495 0 0 1-1.061.439zM13 30a1 1 0 0 1-.707-.293L4.586 22H1a1 1 0 0 1-1-1V11a1 1 0 0 1 1-1h3.586l7.707-7.707A1 1 0 0 1 14 3v26a1.002 1.002 0 0 1-1 1z"></path>
-      </svg>
-    )}
-  </span>
-</div>
+                <span
+                  className={`v-playerIcon ${
+                    isMuted ? "v-iconVolumeMute" : "v-iconVolumeHigh"
+                  }`}
+                  onClick={toggleMute}
+                >
+                  {isMuted ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+                      <path d="M13 30a1 1 0 0 1-.707-.293L4.586 22H1a1 1 0 0 1-1-1V11a1 1 0 0 1 1-1h3.586l7.707-7.707A1 1 0 0 1 14 3v26a1.002 1.002 0 0 1-1 1z"></path>
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 32">
+                      <path d="M27.814 28.814a1.5 1.5 0 0 1-1.061-2.56C29.492 23.515 31 19.874 31 16.001s-1.508-7.514-4.247-10.253a1.5 1.5 0 1 1 2.121-2.121C32.179 6.932 34 11.327 34 16.001s-1.82 9.069-5.126 12.374a1.495 1.495 0 0 1-1.061.439zm-5.329-2.829a1.5 1.5 0 0 1-1.061-2.56c4.094-4.094 4.094-10.755 0-14.849a1.5 1.5 0 1 1 2.121-2.121c2.55 2.55 3.954 5.94 3.954 9.546s-1.404 6.996-3.954 9.546a1.495 1.495 0 0 1-1.061.439zm-5.328-2.828a1.5 1.5 0 0 1-1.061-2.56 6.508 6.508 0 0 0 0-9.192 1.5 1.5 0 1 1 2.121-2.121c3.704 3.704 3.704 9.731 0 13.435a1.495 1.495 0 0 1-1.061.439zM13 30a1 1 0 0 1-.707-.293L4.586 22H1a1 1 0 0 1-1-1V11a1 1 0 0 1 1-1h3.586l7.707-7.707A1 1 0 0 1 14 3v26a1.002 1.002 0 0 1-1 1z"></path>
+                    </svg>
+                  )}
+                </span>
+                <input
+                  ref={volumeControlRef}
+                  type="range"
+                  className="v-volumeInput"
+                  min="0"
+                  max="100"
+                  step="1"
+                  value={volume}
+                  onChange={handleVolumeChange}
+                  orient="horizontal"
+                />
+              </div>
+
               <div className="v-fullscreen " onClick={handleFullscreenToggle}>
                 <span className="v-playerIcon v-iconFullscreen">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">

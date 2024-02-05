@@ -121,7 +121,6 @@ const Donation = () => {
         <input
             type="checkbox"
             id="approve"
-            checked={hasApproved}
             onChange={handleApprovedChange}
             style={{ cursor: "pointer" }}
             required
@@ -137,15 +136,33 @@ const Donation = () => {
         <h2 className="text-[#767676] text-[14px] font-medium mt-[24px]">
           გადახდის მეთოდი
         </h2>
-        <div className="flex flex-col gap-[8px] mt-[12px] mb-[18px]">
-        <button className="w-full border border-[#CBCBCB] h-[48px] flex items-center  flex-row pl-[108px] gap-[8px]">
-          <Image src='/images/paypal.png' alt="paypal" width={30} height={30} />
-          PayPal
-        </button>
-        <button className="w-full border border-[#CBCBCB] h-[48px] flex-row flex items-center pl-[108px] gap-[8px]">
-        <Image src='/images/card.png' alt="paypal"  width={30} height={30}  />
-        Credit/Debit card
-        </button>
+        <div className="flex flex-col gap-[8px] mt-[10px] relative">
+       
+        <div className="flex items-center flex-row gap-[8px]">
+  <input
+    type='radio'
+    value='radio'
+    checked={!hasApproved}  // Set the checked attribute based on a condition
+    onChange={() => handleApprovedChange(false)}  // Handle change to set hasApproved state
+  />
+  <label className="flex items-center gap-[8px]">
+    <Image src='/images/paypal.png' alt="paypal" width={30} height={30} />
+    PayPal
+  </label>
+</div>
+        
+<div className="flex-row flex items-center whitespace-nowrap gap-[8px]">
+  <input
+    type='radio'
+    value='card'
+    checked={hasApproved}  // Set the checked attribute based on a condition
+    onChange={() => handleApprovedChange(true)}  // Handle change to set hasApproved state
+  />
+  <label className="flex items-center gap-[8px]">
+    <Image src='/images/card.png' alt="paypal" width={30} height={30} />
+    Credit/Debit card
+  </label>
+</div>
         </div>
        
       </form>
