@@ -12,6 +12,8 @@ const Page = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [totalVideoCards, setTotalVideoCards] = useState(0);
 
+  const [selectedVideoIndex, setSelectedVideoIndex] = useState(0);
+
   const videosPerPage = 17; // Number of videos to display per page
 
   // Move the set of videoIds outside the component function to make it persistent
@@ -87,6 +89,10 @@ const Page = () => {
   }, [currentPage, totalPages]); // Fetch again if currentPage or totalPages is updated
 
 
+  const handleVideoCardClick = (index) => {
+    setSelectedVideoIndex(index);
+    
+  };
 
   return (
     <div>
@@ -96,40 +102,44 @@ const Page = () => {
         <div>
           {/* Render the main video */}
           <CustomYoutubePlayer
-            videoId={videos[0]?.acf.video_url.split("v=")[1]}
+            key={videos[selectedVideoIndex]?.id}  // Add key attribute
+            videoId={videos[selectedVideoIndex]?.acf.video_url.split("v=")[1]}
             style={{ width: "100%", maxWidth: "1180px", margin: "0 auto" }}
           />
           <h2 className="w-10/12 mx-auto p-10 z-999 text-[#000] text-[32px] font-bold">
-            {videos[0]?.title.rendered}
+            {videos[selectedVideoIndex]?.title.rendered}
           </h2>
           <p className="w-10/12 mx-auto p-10 z-999 text-[#A1A1A1] font-bold">
-            {videos[0]?.acf.description}
+            {videos[selectedVideoIndex]?.acf.description}
           </p>
           <div className="w-10/12 mx-auto justify-end flex flex-row gap-5 p-10">
             <button onClick={goToPrevPage}>
-                <Image
-                src='/images/arrow-left-black.png' 
-                alt='navigation'
+              <Image
+                src="/images/arrow-left-black.png"
+                alt="navigation"
                 width={32}
                 height={32}
-                 />
+              />
             </button>
             <button onClick={goToNextPage}>
-            <Image
-                src='/images/arrow-right-black.png' 
-                alt='navigation'
+              <Image
+                src="/images/arrow-right-black.png"
+                alt="navigation"
                 width={32}
                 height={32}
-                 />
+              />
             </button>
           </div>
           {/* Render video cards */}
           <div className="w-10/12 mx-auto flex flex-wrap justify-center gap-8">
-          
             {videos.slice(1).map((video, index) => {
               const key = `${video.id}-${index}`;
               return (
-                <div key={key} className="w-[280px] mx-auto mb-8">
+                <div
+                  key={key}
+                  className="w-[280px] mx-auto mb-8"
+                  onClick={() => handleVideoCardClick(index + 1)}
+                >
                   <VideoCard
                     videoId={video.acf.video_url.split("v=")[1]}
                     caption={video.title.rendered}
@@ -138,9 +148,6 @@ const Page = () => {
               );
             })}
           </div>
-
-         
-         
         </div>
       )}
       {videos.length === 0 && <p>Loading...</p>}
