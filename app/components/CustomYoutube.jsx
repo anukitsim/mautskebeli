@@ -94,6 +94,9 @@ export default function CustomYoutubePlayer({ videoId, onClose, style }) {
     }
   }, [player, duration]);
 
+
+  
+
   const togglePlayPause = () => {
     if (player && typeof player.getPlayerState === "function") {
       const playerState = player.getPlayerState();

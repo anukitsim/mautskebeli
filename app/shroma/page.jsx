@@ -13,8 +13,12 @@ const Page = () => {
   const [totalVideoCards, setTotalVideoCards] = useState(0);
 
   const [selectedVideoIndex, setSelectedVideoIndex] = useState(0);
+  const [lastSelectedVideoIndex, setLastSelectedVideoIndex] = useState(0);
 
-  const videosPerPage = 17; // Number of videos to display per page
+  const [currentVideoTitle, setCurrentVideoTitle] = useState("");
+  const [currentVideoDescription, setCurrentVideoDescription] = useState("");
+
+  const videosPerPage = 16; // Number of videos to display per page
 
   // Move the set of videoIds outside the component function to make it persistent
   const videoIdsSet = new Set();
@@ -61,6 +65,7 @@ const Page = () => {
 
       setVideos(uniqueVideos);
 
+     
       // Increment the totalVideoCards count only when fetching new videos
       setTotalVideoCards((prevCount) => prevCount + uniqueVideos.length);
       console.log("Fetched Videos:", data);
@@ -84,15 +89,35 @@ const Page = () => {
     }
   };
 
+  
   useEffect(() => {
+    // Fetch videos only when currentPage changes
     fetchVideos();
-  }, [currentPage, totalPages]); // Fetch again if currentPage or totalPages is updated
-
+  }, [currentPage, totalPages]);
+  
+  useEffect(() => {
+    // Update the title and description only when the video card is clicked
+    if (selectedVideoIndex !== lastSelectedVideoIndex) {
+      setCurrentVideoTitle(videos[selectedVideoIndex]?.title.rendered || "");
+      setCurrentVideoDescription(videos[selectedVideoIndex]?.acf.description || "");
+      setLastSelectedVideoIndex(selectedVideoIndex);
+    }
+  }, [selectedVideoIndex, lastSelectedVideoIndex, videos]);
+  
+  useEffect(() => {
+    // Set initial title and description when videos are loaded
+    if (videos.length > 0 && currentVideoTitle === "" && currentVideoDescription === "") {
+      setCurrentVideoTitle(videos[0]?.title.rendered || "");
+      setCurrentVideoDescription(videos[0]?.acf.description || "");
+    }
+  }, [videos, currentVideoTitle, currentVideoDescription]);
+  
 
   const handleVideoCardClick = (index) => {
+    // Update the selected video index without changing the currentPage
     setSelectedVideoIndex(index);
-    
   };
+
 
   return (
     <div>
@@ -102,16 +127,16 @@ const Page = () => {
         <div>
           {/* Render the main video */}
           <CustomYoutubePlayer
-            key={videos[selectedVideoIndex]?.id}  // Add key attribute
-            videoId={videos[selectedVideoIndex]?.acf.video_url.split("v=")[1]}
-            style={{ width: "100%", maxWidth: "1180px", margin: "0 auto" }}
-          />
-          <h2 className="w-10/12 mx-auto p-10 z-999 text-[#000] text-[32px] font-bold">
-            {videos[selectedVideoIndex]?.title.rendered}
-          </h2>
-          <p className="w-10/12 mx-auto p-10 z-999 text-[#A1A1A1] font-bold">
-            {videos[selectedVideoIndex]?.acf.description}
-          </p>
+  key={selectedVideoIndex}
+  videoId={videos[selectedVideoIndex]?.acf.video_url.split("v=")[1]}
+  style={{ width: "100%", maxWidth: "1180px", margin: "0 auto" }}
+/>
+<h2 className="w-10/12 mx-auto p-10 z-999 text-[#000] text-[32px] font-bold">
+  {currentVideoTitle !== undefined ? currentVideoTitle : ""}
+</h2>
+<p className="w-10/12 mx-auto p-10 z-999 text-[#A1A1A1] font-bold">
+  {currentVideoDescription !== undefined ? currentVideoDescription : ""}
+</p>
           <div className="w-10/12 mx-auto justify-end flex flex-row gap-5 p-10">
             <button onClick={goToPrevPage}>
               <Image
@@ -132,13 +157,13 @@ const Page = () => {
           </div>
           {/* Render video cards */}
           <div className="w-10/12 mx-auto flex flex-wrap justify-center gap-8">
-            {videos.slice(1).map((video, index) => {
+            {videos.map((video, index) => {
               const key = `${video.id}-${index}`;
               return (
                 <div
                   key={key}
                   className="w-[280px] mx-auto mb-8"
-                  onClick={() => handleVideoCardClick(index + 1)}
+                  onClick={() => handleVideoCardClick(index)}
                 >
                   <VideoCard
                     videoId={video.acf.video_url.split("v=")[1]}
