@@ -214,6 +214,52 @@ export default function CustomYoutubePlayer({ videoId, onClose, style }) {
   }
 };
 
+const rewind = (seconds) => {
+  if (player && typeof player.seekTo === "function") {
+    const newTime = currentTime - seconds;
+    const seekToTime = newTime < 0 ? 0 : newTime;
+    player.seekTo(seekToTime, true);
+  }
+};
+
+const forward = (seconds) => {
+  if (player && typeof player.seekTo === "function") {
+    const newTime = currentTime + seconds;
+    const seekToTime = newTime > duration ? duration : newTime;
+    player.seekTo(seekToTime, true);
+  }
+};
+
+useEffect(() => {
+  const handleKeyDown = (e) => {
+    switch (e.key) {
+      case " ": // Space key for play/pause
+        e.preventDefault(); // Prevent default space key behavior (scrolling)
+        togglePlayPause();
+        break;
+      case "ArrowLeft": // Left arrow for rewinding
+        e.preventDefault(); // Prevent default arrow key behavior
+        rewind(5); // Rewind by 5 seconds (adjust as needed)
+        break;
+      case "ArrowRight": // Right arrow for forwarding
+        e.preventDefault(); // Prevent default arrow key behavior
+        forward(5); // Forward by 5 seconds (adjust as needed)
+        break;
+      case "f": // F key for full-screen toggle
+        handleFullscreenToggle();
+        break;
+      default:
+        break;
+    }
+  };
+
+  document.addEventListener("keydown", handleKeyDown);
+
+  return () => {
+    document.removeEventListener("keydown", handleKeyDown);
+  };
+}, [togglePlayPause, rewind, forward, handleFullscreenToggle]);
+
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">

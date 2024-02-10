@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Header from "../components/Header";
 import Navigation from "../components/Navigation";
 import CustomYoutubePlayer from "../components/CustomYoutube";
@@ -7,6 +7,8 @@ import VideoCard from "../components/VideoCard";
 import Image from "next/image";
 
 const Page = () => {
+  const mainVideoRef = useRef(null);
+
   const [videos, setVideos] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
@@ -65,7 +67,6 @@ const Page = () => {
 
       setVideos(uniqueVideos);
 
-     
       // Increment the totalVideoCards count only when fetching new videos
       setTotalVideoCards((prevCount) => prevCount + uniqueVideos.length);
       console.log("Fetched Videos:", data);
@@ -89,35 +90,40 @@ const Page = () => {
     }
   };
 
-  
   useEffect(() => {
     // Fetch videos only when currentPage changes
     fetchVideos();
   }, [currentPage, totalPages]);
-  
+
   useEffect(() => {
     // Update the title and description only when the video card is clicked
     if (selectedVideoIndex !== lastSelectedVideoIndex) {
       setCurrentVideoTitle(videos[selectedVideoIndex]?.title.rendered || "");
-      setCurrentVideoDescription(videos[selectedVideoIndex]?.acf.description || "");
+      setCurrentVideoDescription(
+        videos[selectedVideoIndex]?.acf.description || ""
+      );
       setLastSelectedVideoIndex(selectedVideoIndex);
+
+      window.scrollTo({ top: 250, behavior: "smooth" });
     }
   }, [selectedVideoIndex, lastSelectedVideoIndex, videos]);
-  
+
   useEffect(() => {
     // Set initial title and description when videos are loaded
-    if (videos.length > 0 && currentVideoTitle === "" && currentVideoDescription === "") {
+    if (
+      videos.length > 0 &&
+      currentVideoTitle === "" &&
+      currentVideoDescription === ""
+    ) {
       setCurrentVideoTitle(videos[0]?.title.rendered || "");
       setCurrentVideoDescription(videos[0]?.acf.description || "");
     }
   }, [videos, currentVideoTitle, currentVideoDescription]);
-  
 
   const handleVideoCardClick = (index) => {
     // Update the selected video index without changing the currentPage
     setSelectedVideoIndex(index);
   };
-
 
   return (
     <div>
@@ -127,16 +133,19 @@ const Page = () => {
         <div>
           {/* Render the main video */}
           <CustomYoutubePlayer
-  key={selectedVideoIndex}
-  videoId={videos[selectedVideoIndex]?.acf.video_url.split("v=")[1]}
-  style={{ width: "100%", maxWidth: "1180px", margin: "0 auto" }}
-/>
-<h2 className="w-10/12 mx-auto p-10 z-999 text-[#000] text-[32px] font-bold">
-  {currentVideoTitle !== undefined ? currentVideoTitle : ""}
-</h2>
-<p className="w-10/12 mx-auto p-10 z-999 text-[#A1A1A1] font-bold">
-  {currentVideoDescription !== undefined ? currentVideoDescription : ""}
-</p>
+            ref={mainVideoRef}
+            key={selectedVideoIndex}
+            videoId={videos[selectedVideoIndex]?.acf.video_url.split("v=")[1]}
+            style={{ width: "100%", maxWidth: "1180px", margin: "0 auto" }}
+          />
+          <h2 className="w-10/12 mx-auto p-10 z-999 text-[#000] text-[32px] font-bold">
+            {currentVideoTitle !== undefined ? currentVideoTitle : ""}
+          </h2>
+          <p className="w-10/12 mx-auto p-10 z-999 text-[#A1A1A1] font-bold">
+            {currentVideoDescription !== undefined
+              ? currentVideoDescription
+              : ""}
+          </p>
           <div className="w-10/12 mx-auto justify-end flex flex-row gap-5 p-10">
             <button onClick={goToPrevPage}>
               <Image

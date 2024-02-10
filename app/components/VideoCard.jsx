@@ -19,7 +19,15 @@ const VideoCard = ({ videoId, caption }) => {
     setModalIsOpen(false);
   };
 
-  const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+  // Remove any additional query parameters from videoId
+  const sanitizedVideoId = videoId.split('&')[0];
+
+  // Construct the thumbnail URL using the maxresdefault.jpg quality
+  const thumbnailUrl = `https://img.youtube.com/vi/${sanitizedVideoId}/maxresdefault.jpg`;
+
+
+
+  
 
   return (
     <div
