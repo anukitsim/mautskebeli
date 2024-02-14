@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
 import Image from 'next/image';
 import CustomYoutubePlayer from './CustomYoutube';
+
 const PlayButton = () => (
   <img src='/images/playbuttontest.svg' alt='playbutton' width={70} height={70} />
 );

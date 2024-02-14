@@ -20,8 +20,7 @@ const VideoCard = ({ videoId, caption }) => {
   };
 
   // Remove any additional query parameters from videoId
-  const sanitizedVideoId = videoId.split('&')[0];
-
+  const sanitizedVideoId = videoId ? videoId.split('&')[0] : '';
   // Construct the thumbnail URL using the maxresdefault.jpg quality
   const thumbnailUrl = `https://img.youtube.com/vi/${sanitizedVideoId}/hqdefault.jpg`;
 

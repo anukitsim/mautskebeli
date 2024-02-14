@@ -1,275 +1,167 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
 import Navigation from "../components/Navigation";
-import CustomYoutubePlayer from "../components/CustomYoutube";
-import Modal from "react-modal";
+import VideoCard from "../components/VideoCard";
 import Image from "next/image";
+import Modal from 'react-modal';  // Import the Modal component
+import CustomYoutubePlayer from "../components/CustomYoutube";
 
-const PlayButton = () => (
-  <img src="/images/playbuttontest.svg" alt="playbutton" width={70} height={70} />
-);
+const Page = () => {
+  const [videos, setVideos] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalVideoCards, setTotalVideoCards] = useState(0);
 
-function decodeHtmlEntities(text) {
-  const tempElement = document.createElement('div');
-  tempElement.innerHTML = text;
-  return tempElement.textContent || tempElement.innerText;
-}
+  const [selectedVideoIndex, setSelectedVideoIndex] = useState(0);
+  const [lastSelectedVideoIndex, setLastSelectedVideoIndex] = useState(0);
 
-// Function to extract YouTube video ID from a URL
-function extractVideoId(url) {
-  const match = url.match(/[?&]v=([^&]+)/);
-  return match && match[1] ? match[1] : null;
-}
+  const [currentVideoTitle, setCurrentVideoTitle] = useState("");
+  const [currentVideoDescription, setCurrentVideoDescription] = useState("");
+  const [modalIsOpen, setModalIsOpen] = useState(false);  // State for modal visibility
 
+  const videosPerPage = 100;
 
-const VideoCard = ({ videoId, caption, onCardClick }) => {
-  const [thumbnailUrl, setThumbnailUrl] = useState(null);
+  const postTypes = ["mecniereba", "medicina", "msoflio", "saxli", "kalaki", "shroma", "xelovneba"];
 
-  useEffect(() => {
-    const fetchThumbnail = async () => {
-      try {
-        const apiKey = 'AIzaSyDd4yHryI5WLPLNjpKsiuU1bYHnBgcK_u8'; // Replace with your YouTube API key
+  const extractVideoId = (videoUrl) => {
+    const match = videoUrl.match(/(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/);
+    return match ? match[1] : null;
+  };
+
+  const removeDuplicates = (videos) => {
+    const videoIdsSet = new Set();
+    const uniqueVideos = [];
+
+    videos.forEach((video) => {
+      const videoId = extractVideoId(video.acf.video_url);
+
+      if (!videoIdsSet.has(videoId)) {
+        uniqueVideos.push(video);
+        videoIdsSet.add(videoId);
+      }
+    });
+
+    console.log("Video IDs Set:", videoIdsSet);
+    return uniqueVideos;
+  };
+
+  const fetchVideos = async () => {
+    try {
+      const promises = postTypes.map(async (postType) => {
         const response = await fetch(
-          `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=${apiKey}&part=snippet,contentDetails`
+          `http://mautskebeli.local/wp-json/wp/v2/${postType}?per_page=${videosPerPage}&page=${currentPage}`
         );
 
         if (!response.ok) {
-          throw new Error(`Failed to fetch video details. Status: ${response.status}`);
+          console.error(`Error fetching data for ${postType}:`, response.statusText);
+          return [];
         }
 
         const data = await response.json();
+        console.log(`Fetched Video Data for ${postType}:`, data);
 
-        if (!data || !data.items || data.items.length === 0) {
-          throw new Error('Video not found or API response format changed.');
-        }
+        return removeDuplicates(data);
+      });
 
-        const videoDetails = data.items && data.items[0];
+      const results = await Promise.all(promises);
+      const allVideos = results.reduce((acc, videos) => acc.concat(videos), []);
 
-if (!videoDetails || !videoDetails.snippet || !videoDetails.snippet.thumbnails) {
-  throw new Error('Invalid API response format.');
-}
+      console.log("All Fetched Videos:", allVideos);
 
+      setTotalVideoCards((prevCount) => prevCount + allVideos.length);
+      setVideos(allVideos);
 
-        const maxResThumbnailUrl = data.items[0]?.snippet?.thumbnails?.maxres?.url;
-        const highQualityThumbnailUrl = data.items[0]?.snippet?.thumbnails?.high?.url;
-
-        const DEFAULT_THUMBNAIL_URL = '/images/logo.svg';
-
-        // Choose the best available thumbnail URL
-        const chosenThumbnailUrl = maxResThumbnailUrl || highQualityThumbnailUrl || DEFAULT_THUMBNAIL_URL;
-
-        if (!chosenThumbnailUrl) {
-          throw new Error('No suitable thumbnails found in API response.');
-        }
-
-        setThumbnailUrl(chosenThumbnailUrl);
-      } catch (error) {
-        console.error('Error fetching video details:', error);
-        // Handle error gracefully, e.g., set a default thumbnail URL or ignore
-      }
-    };
-
-    fetchThumbnail();
-  }, [videoId]);
-
-  const validVideoId = videoId;
-  
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-
-  const openModal = () => {
-    setModalIsOpen(true);
-    onCardClick(validVideoId);
-  };
-
-  const closeModal = () => {
-    setModalIsOpen(false);
-  };
-
-  const decodedCaption = decodeHtmlEntities(caption);
-
-
-  return (
-    <div
-      style={{
-        position: 'relative',
-        width: '480px',
-        borderRadius: '10px',
-        border: '1px solid #000',
-        backgroundColor: '#8C74B2',
-        overflow: 'hidden',
-        zIndex: 1,
-      }}
-      className='flex flex-col p-[10px] hover:scale-125 mt-10'
-    >
-      {thumbnailUrl && (
-        <img
-          src={thumbnailUrl}
-          alt="Video Thumbnail"
-          style={{ width: '600px', height: '402px', objectFit: 'cover', borderRadius: '10px' }}
-          className='mt-[10px]'
-        />
-      )}
-      <div
-        style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          cursor: 'pointer',
-          width: '50px',
-          height: '50px',
-        }}
-        onClick={openModal}
-      >
-        <PlayButton />
-      </div>
-     <p className='mt-[8px]'>{decodedCaption}</p>
-    </div>
-  );
-};
-
-
-
-const Videos = () => {
-  const [videoData, setVideoData] = useState([]);
-  const [selectedVideo, setSelectedVideo] = useState(null);
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-
-  const fetchVideosOnceADay = async () => {
-    try {
-      const lastFetchTimestamp = localStorage.getItem('lastFetchTimestamp');
-      const currentTimestamp = Date.now();
-      const oneDayInMilliseconds = 24 * 60 * 60 * 1000; // 1 day
-
-      // Check if it's been at least one day since the last fetch
-      if (!lastFetchTimestamp || currentTimestamp - lastFetchTimestamp > oneDayInMilliseconds) {
-        const apiKey = 'AIzaSyDd4yHryI5WLPLNjpKsiuU1bYHnBgcK_u8';
-        const channelId = 'UC6TjRdvXOknZBbtXiePp1HA';
-
-        let nextPageToken = '';
-        const allVideos = [];
-
-        do {
-          const response = await fetch(
-            `https://www.googleapis.com/youtube/v3/search?key=${apiKey}&channelId=${channelId}&part=snippet,id&order=date&maxResults=500&pageToken=${nextPageToken}`
-          );
-
-          if (!response.ok) {
-            throw new Error(`Failed to fetch video data. Status: ${response.status}`);
-          }
-
-          const data = await response.json();
-          const videos = data.items.map((item) => ({
-            id: item.id.videoId,
-            title: item.snippet.title,
-            videourl: `https://www.youtube.com/watch?v=${item.id.videoId}`,
-          }));
-
-          allVideos.push(...videos);
-          nextPageToken = data.nextPageToken;
-
-        } while (nextPageToken);
-
-        // Cache the fetched data
-        localStorage.setItem('videoData', JSON.stringify(allVideos));
-        localStorage.setItem('lastFetchTimestamp', currentTimestamp);
-        setVideoData(allVideos);
-
-        console.log("Video Data:", allVideos);
-        console.log("Number of videos fetched:", allVideos.length);
-      } else {
-        // Use cached data if it's within the same day
-        const cachedData = localStorage.getItem('videoData');
-        if (cachedData) {
-          setVideoData(JSON.parse(cachedData));
+      if (totalPages === 0) {
+        const totalPagesHeader = response.headers.get("x-wp-totalpages");
+        if (totalPagesHeader) {
+          setTotalPages(parseInt(totalPagesHeader, 10));
         }
       }
     } catch (error) {
-      console.error("Error fetching video data:", error);
+      console.error("Error fetching data:", error);
     }
   };
 
   useEffect(() => {
-    fetchVideosOnceADay();
-  }, []);
+    fetchVideos();
+  }, [currentPage, totalPages]);
 
-
-  const handleCardClick = (videoId) => {
-    setSelectedVideo(videoId);
+  // Function to open the modal and set the selected video index
+  const openModal = (index) => {
+    setSelectedVideoIndex(index);
     setModalIsOpen(true);
   };
-  
+
+  // Function to close the modal
   const closeModal = () => {
-    setSelectedVideo(null);
     setModalIsOpen(false);
+    setLastSelectedVideoIndex(selectedVideoIndex);
   };
 
   return (
-    <main>
+    <div>
       <Header />
       <Navigation />
-
-      <section className="container mx-auto">
-        <h2 className="text-3xl font-bold mb-4">ყველა ვიდეო</h2>
-        <div className="grid grid-cols-2 gap-16 mt-10">
-        {videoData.map((video, index) => (
-  <VideoCard
-    key={`${video.id}-${index}`}
-    videoId={extractVideoId(video.videourl)}
-    caption={video.title}
-    onCardClick={() => handleCardClick(extractVideoId(video.videourl))}
-  />
-))}
-
-        </div>
-      </section>
-
-      {selectedVideo && (
-        <Modal
-          isOpen={modalIsOpen}
-          onRequestClose={closeModal}
-          contentLabel="Video Modal"
-          ariaHideApp={false}
-          style={{
-            overlay: {
-              position: "fixed",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: "rgba(0, 0, 0, 0.8)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              zIndex: 1000,
-            },
-            content: {
-              position: "fixed",
-              border: "none",
-              background: "none",
-              width: "100%",
-              height: "100%",
-            },
-          }}
-          onClick={(e) => {
-            // Prevent clicks inside the modal from closing it
-            e.stopPropagation();
-          }}
-        >
-          <button
-            onClick={closeModal}
-            className="absolute left-5 top-[20%]"
-          >
-            <Image src="/images/cross.svg" alt="close" width={70} height={70} />
-          </button>
-          <div className="h-full overflow-hidden">
-            <CustomYoutubePlayer videoId={selectedVideo} />
+      {videos.length > 0 && (
+        <div>
+          <div className="w-10/12 mx-auto flex flex-wrap justify-center gap-8">
+            {videos.map((video, index) => {
+              const key = `${video.id}-${index}`;
+              return (
+                <div
+                  key={key}
+                  className="w-[280px] mx-auto mb-8"
+                  onClick={() => openModal(index)}  // Open modal on click
+                >
+                  <VideoCard
+                    videoId={extractVideoId(video.acf.video_url)}
+                    thumbnailUrl={video.acf.thumbnail_url}
+                    caption={video.title.rendered}
+                  />
+                </div>
+              );
+            })}
           </div>
-        </Modal>
+
+          {/* Modal component */}
+          <Modal
+            isOpen={modalIsOpen}
+            onRequestClose={closeModal}
+            contentLabel="Video Modal"
+            style={{
+              overlay: {
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 2,
+              },
+              content: {
+                border: 'none',
+                background: 'none',
+              },
+            }}
+          >
+            {/* Your modal content goes here */}
+            <button onClick={closeModal} className='absolute left-5 top-[20%]'>
+              <Image src='/images/cross.svg' alt='close' width={70} height={70} />
+            </button>
+            <div className='h-full overflow-hidden'>
+              {/* Include your CustomYoutubePlayer component with the relevant videoId */}
+              <CustomYoutubePlayer videoId={extractVideoId(videos[selectedVideoIndex]?.acf.video_url)} />
+            </div>
+          </Modal>
+        </div>
       )}
-    </main>
+      {videos.length === 0 && <p>Loading...</p>}
+    </div>
   );
 };
 
-export default Videos;
+export default Page;
