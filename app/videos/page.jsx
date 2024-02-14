@@ -44,11 +44,20 @@ const VideoCard = ({ videoId, caption, onCardClick }) => {
           throw new Error('Video not found or API response format changed.');
         }
 
+        const videoDetails = data.items && data.items[0];
+
+if (!videoDetails || !videoDetails.snippet || !videoDetails.snippet.thumbnails) {
+  throw new Error('Invalid API response format.');
+}
+
+
         const maxResThumbnailUrl = data.items[0]?.snippet?.thumbnails?.maxres?.url;
         const highQualityThumbnailUrl = data.items[0]?.snippet?.thumbnails?.high?.url;
 
+        const DEFAULT_THUMBNAIL_URL = '/images/logo.svg';
+
         // Choose the best available thumbnail URL
-        const chosenThumbnailUrl = maxResThumbnailUrl || highQualityThumbnailUrl;
+        const chosenThumbnailUrl = maxResThumbnailUrl || highQualityThumbnailUrl || DEFAULT_THUMBNAIL_URL;
 
         if (!chosenThumbnailUrl) {
           throw new Error('No suitable thumbnails found in API response.');
@@ -127,62 +136,64 @@ const Videos = () => {
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [modalIsOpen, setModalIsOpen] = useState(false);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Check if videoData is already cached
-        const cachedData = localStorage.getItem('videoData');
-        if (cachedData) {
-          setVideoData(JSON.parse(cachedData));
-          return;
-        }
-    
+  const fetchVideosOnceADay = async () => {
+    try {
+      const lastFetchTimestamp = localStorage.getItem('lastFetchTimestamp');
+      const currentTimestamp = Date.now();
+      const oneDayInMilliseconds = 24 * 60 * 60 * 1000; // 1 day
+
+      // Check if it's been at least one day since the last fetch
+      if (!lastFetchTimestamp || currentTimestamp - lastFetchTimestamp > oneDayInMilliseconds) {
         const apiKey = 'AIzaSyDd4yHryI5WLPLNjpKsiuU1bYHnBgcK_u8';
         const channelId = 'UC6TjRdvXOknZBbtXiePp1HA';
+
         let nextPageToken = '';
         const allVideos = [];
-    
+
         do {
           const response = await fetch(
             `https://www.googleapis.com/youtube/v3/search?key=${apiKey}&channelId=${channelId}&part=snippet,id&order=date&maxResults=500&pageToken=${nextPageToken}`
           );
-    
+
           if (!response.ok) {
             throw new Error(`Failed to fetch video data. Status: ${response.status}`);
           }
-    
+
           const data = await response.json();
           const videos = data.items.map((item) => ({
             id: item.id.videoId,
             title: item.snippet.title,
             videourl: `https://www.youtube.com/watch?v=${item.id.videoId}`,
           }));
-    
+
           allVideos.push(...videos);
           nextPageToken = data.nextPageToken;
-    
+
         } while (nextPageToken);
-    
+
         // Cache the fetched data
         localStorage.setItem('videoData', JSON.stringify(allVideos));
+        localStorage.setItem('lastFetchTimestamp', currentTimestamp);
         setVideoData(allVideos);
 
-        
-    
         console.log("Video Data:", allVideos);
         console.log("Number of videos fetched:", allVideos.length);
-    
-      } catch (error) {
-        console.error("Error fetching video data:", error);
-
-        setThumbnailUrl(DEFAULT_THUMBNAIL_URL);
-        
+      } else {
+        // Use cached data if it's within the same day
+        const cachedData = localStorage.getItem('videoData');
+        if (cachedData) {
+          setVideoData(JSON.parse(cachedData));
+        }
       }
-    };
-    
-    
-    fetchData();
+    } catch (error) {
+      console.error("Error fetching video data:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchVideosOnceADay();
   }, []);
+
 
   const handleCardClick = (videoId) => {
     setSelectedVideo(videoId);

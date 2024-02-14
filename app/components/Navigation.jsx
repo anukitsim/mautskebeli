@@ -2,7 +2,7 @@ import Link from "next/link";
 
 const Navigation = () => {
   return (
-    <nav className="w-full h-16 bg-[#8C74B2] flex items-center justify-around">
+    <nav className="w-full h-16 bg-[#8C74B2] flex items-center justify-around z-50">
       <ul className="w-6/12 justify-start text-white text-sm whitespace-nowrap flex  gap-8">
         <Link href='/'>მთავარი</Link>
         <Link href='#'>ტექსტი</Link>

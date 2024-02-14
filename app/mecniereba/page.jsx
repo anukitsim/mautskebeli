@@ -50,7 +50,7 @@ const Page = () => {
   const fetchVideos = async () => {
     try {
       const response = await fetch(
-        `http://mautskebeli.local/wp-json/wp/v2/shroma?per_page=${videosPerPage}&page=${currentPage}`
+        `http://mautskebeli.local/wp-json/wp/v2/mecniereba?per_page=${videosPerPage}&page=${currentPage}`
       );
 
       if (!response.ok) {

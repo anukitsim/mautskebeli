@@ -116,29 +116,55 @@ const VideoPlayer = ({ videoId, caption, onClose }) => {
 
 
 const HomePageVideoContainer = () => {
-  const videos = [
-    { videoId: 'QtCmYOqRUf0', caption: 'Caption 1' },
-    { videoId: 'pfRDu6LrwPY', caption: 'Caption 2' },
-    { videoId: 'XFvbTUtScw8', caption: 'Caption 3' },
-    { videoId: 'DlE9WziQL0g', caption: 'Caption 4' },
-  ];
+ 
+  const [videos, setVideos] = useState([]);
 
-  return (
+  useEffect(() => {
+    const fetchVideos = async () => {
+      try {
+        // Check if videos are already cached
+        const cachedVideos = localStorage.getItem('cachedVideos');
+        if (cachedVideos) {
+          setVideos(JSON.parse(cachedVideos));
+          return;
+        }
+
+        // If not cached, fetch the videos from the API
+        const apiKey = 'AIzaSyDd4yHryI5WLPLNjpKsiuU1bYHnBgcK_u8'; // Replace with your YouTube API key
+        const channelId = 'UC6TjRdvXOknZBbtXiePp1HA';
+        const response = await fetch(
+          `https://www.googleapis.com/youtube/v3/search?key=${apiKey}&channelId=${channelId}&part=snippet,id&order=date&maxResults=4`
+        );
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch videos. Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const fetchedVideos = data.items.map((item) => ({
+          videoId: item.id.videoId,
+          caption: item.snippet.title,
+        }));
+
+        // Cache the fetched videos
+        localStorage.setItem('cachedVideos', JSON.stringify(fetchedVideos));
+        setVideos(fetchedVideos);
+      } catch (error) {
+        console.error('Error fetching videos:', error);
+      }
+    };
+
+    fetchVideos();
+  }, []);
+
+  return  (
     <>
-      <Link
-        href="/videos"
-        className="mt-[150px] w-10/12 mx-auto flex justify-end mb-[16px] cursor-pointer font-medium text-[14px]"
-      >
+      <Link href='/videos' className='mt-[150px] w-10/12 mx-auto flex justify-end mb-[16px] cursor-pointer font-medium text-[14px]'>
         ყველას ნახვა
       </Link>
-      <div className="w-11/12 mx-auto flex flex-row justify-center gap-8">
+      <div className='w-11/12 mx-auto flex flex-row justify-center gap-8'>
         {videos.map((video, index) => (
-          <VideoPlayer
-            key={index}
-            videoId={video.videoId}
-            caption={video.caption}
-            onClose={() => console.log('Modal closed')} 
-          />
+          <VideoPlayer key={index} videoId={video.videoId} caption={video.caption} onClose={() => console.log('Modal closed')} />
         ))}
       </div>
     </>
@@ -146,5 +172,4 @@ const HomePageVideoContainer = () => {
 };
 
 export default HomePageVideoContainer;
-
 

@@ -23,7 +23,7 @@ const VideoCard = ({ videoId, caption }) => {
   const sanitizedVideoId = videoId.split('&')[0];
 
   // Construct the thumbnail URL using the maxresdefault.jpg quality
-  const thumbnailUrl = `https://img.youtube.com/vi/${sanitizedVideoId}/maxresdefault.jpg`;
+  const thumbnailUrl = `https://img.youtube.com/vi/${sanitizedVideoId}/hqdefault.jpg`;
 
 
 

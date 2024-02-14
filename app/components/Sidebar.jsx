@@ -8,7 +8,7 @@ const Sidebar = () => {
         <Image src="/images/shroma.png" alt="shroma" width={20} height={20} />
         <span className="text-[#222] text-[15px]">შრომა</span>
       </Link>
-      <Link href="#" className="flex flex-row gap-3">
+      <Link href="/mecniereba" className="flex flex-row gap-3">
         <Image
           src="/images/mecniereba.png"
           alt="shroma"
@@ -26,11 +26,11 @@ const Sidebar = () => {
         />
         <span className="text-[#222] text-[15px]">ეკონომიკა</span>
       </Link>
-      <Link href="#" className="flex flex-row gap-3">
+      <Link href="/medicina" className="flex flex-row gap-3">
         <Image src="/images/medicina.png" alt="shroma" width={20} height={20} />
         <span className="text-[#222] text-[15px]">მედიცინა</span>
       </Link>
-      <Link href="#" className="flex flex-row gap-3">
+      <Link href="/xelovneba" className="flex flex-row gap-3">
         <Image
           src="/images/xelovneba.png"
           alt="shroma"
@@ -40,7 +40,7 @@ const Sidebar = () => {
         <span className="text-[#222] text-[15px]">ხელოვნება</span>
       </Link>
 
-      <Link href="#" className="flex flex-row gap-3">
+      <Link href="/qalaqi" className="flex flex-row gap-3">
         <Image src="/images/qalaqi.png" alt="shroma" width={20} height={20} />
         <span className="text-[#222] text-[15px]">ქალაქი</span>
       </Link>
@@ -48,7 +48,7 @@ const Sidebar = () => {
         <Image src="/images/msoplio.png" alt="shroma" width={20} height={20} />
         <span className="text-[#222] text-[15px]">რესურსები</span>
       </Link>
-      <Link href="#" className="flex flex-row gap-3">
+      <Link href="/msoflio" className="flex flex-row gap-3">
         <Image
           src="/images/saxli-yvelas.png"
           alt="shroma"
@@ -57,7 +57,7 @@ const Sidebar = () => {
         />
         <span className="text-[#222] text-[15px]">მსოფლიო</span>
       </Link>
-      <Link href="#" className="flex flex-row gap-3">
+      <Link href="saxli-kvelas" className="flex flex-row gap-3">
         <Image src="/images/bechduri.png" alt="shroma" width={20} height={20} />
         <span className="text-[#222] text-[15px]">სახლი ყველას</span>
       </Link>
