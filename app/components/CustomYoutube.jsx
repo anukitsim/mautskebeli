@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import RandomVideo from "./RandomVideo";
 
 
 export default function CustomYoutubePlayer({ videoId, onClose, style, customOverlayStyle }) {
@@ -57,6 +58,7 @@ const customOverlayRef = useRef(null);
             
           },
         },
+        suggestedQuality: "hd720",
       });
 
       setPlayer(newPlayer);
@@ -315,8 +317,11 @@ useEffect(() => {
      
       <div className="video-container js-media-container js-video-container" style={style}>
       <div className="custom-overlay" ref={customOverlayRef} style={customOverlayStyle} >
+        <div className="flex flex-row justify-between pr-5 pt-5">
+        <h1 className="p-5 text-black">ასევე იხილეთ</h1>
+<RandomVideo />
+        </div>
 
-  {/* Your custom suggestions content goes here */}
 </div>
       <div className="v-pause-overlay" ref={pauseOverlayRef}></div>
   <div className="v-pause-container" ref={pauseContainerRef}></div>

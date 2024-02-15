@@ -33,6 +33,7 @@ const VideoCard = ({ videoId, caption }) => {
       style={{
         position: 'relative',
         width: '280px', 
+        height: '320px',
         borderRadius: '10px',
         border: '3px solid #8C74B2',
         backgroundColor: '#D2D4DC',
@@ -50,7 +51,7 @@ const VideoCard = ({ videoId, caption }) => {
       <div
         style={{
           position: 'absolute',
-          top: '50%',
+          top: '30%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
           cursor: 'pointer',
