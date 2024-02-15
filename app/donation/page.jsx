@@ -70,7 +70,7 @@ const Donation = () => {
 
 
   return (
-    <div className="flex w-[380px] border border-[#CBCBCB] gap-[12px] mx-auto flex-col pt-[18px] items-center mt-10 rounded-[12px] ">
+    <div className="flex w-[380px] bg-gradient-to-r from-[#D2D4DC] to-[#E0DBE8] border border-[#CBCBCB] gap-[12px] mx-auto flex-col pt-[18px] items-center mt-10 rounded-[12px] ">
        <div className='flex flex-row gap-[119px]'>
         <h2 className='text-[#767676] text-[14px] font-medium'>ოდენობა</h2>
       <h2 className='text-[#767676] text-[14px] font-medium'>სხვა თანხა</h2>

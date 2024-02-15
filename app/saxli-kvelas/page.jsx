@@ -142,6 +142,7 @@ const Page = () => {
             key={selectedVideoIndex}
             videoId={extractVideoId(videos[selectedVideoIndex]?.acf.video_url)}
             style={{ width: "100%", maxWidth: "1180px", margin: "0 auto" }}
+            customOverlayStyle={{ height: "25%", top: "73%" }}
           />
           <h2 className="w-10/12 mx-auto p-10 z-999 text-[#000] text-[32px] font-bold">
             {currentVideoTitle !== undefined ? currentVideoTitle : ""}

@@ -9,7 +9,7 @@ const PlayButton = () => (
   <img src='/images/playbuttontest.svg' alt='playbutton' width={70} height={70} />
 );
 
-const VideoPlayer = ({ videoId, caption, onClose }) => {
+const VideoPlayer = ({ videoId, caption, onClose, style, customOverlayStyle }) => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
 
   
@@ -38,6 +38,7 @@ const VideoPlayer = ({ videoId, caption, onClose }) => {
     }
   };
   
+
 
   return (
     <div
@@ -93,7 +94,7 @@ const VideoPlayer = ({ videoId, caption, onClose }) => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 2,
+            zIndex: 100,
           },
           content: {
             border: 'none',
@@ -106,8 +107,8 @@ const VideoPlayer = ({ videoId, caption, onClose }) => {
         <button onClick={closeModal} className='absolute left-5 top-[20%]'>
           <Image src='/images/cross.svg' alt='close' width={70} height={70} />
         </button>
-        <div className='h-full overflow-hidden'>
-          <CustomYoutubePlayer videoId={videoId} />
+        <div className='h-full w-full overflow-hidden'>
+        <CustomYoutubePlayer videoId={videoId}  customOverlayStyle={{ height: "35%", top: "62%" }} />
         </div>
       </Modal>
     </div>

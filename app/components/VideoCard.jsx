@@ -35,7 +35,7 @@ const VideoCard = ({ videoId, caption }) => {
         width: '280px', 
         borderRadius: '10px',
         border: '3px solid #8C74B2',
-        backgroundColor: 'white',
+        backgroundColor: '#D2D4DC',
         overflow: 'hidden',
         zIndex: 1,
       }}

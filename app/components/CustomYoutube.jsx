@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 
 
-export default function CustomYoutubePlayer({ videoId, onClose, style }) {
+export default function CustomYoutubePlayer({ videoId, onClose, style, customOverlayStyle }) {
   const playerRef = useRef(null);
   const volumeControlRef = useRef(null);
 
@@ -21,6 +21,8 @@ const customOverlayRef = useRef(null);
   
 
   let interval;
+
+  let customOverlayTimeout; 
 
   function formatTime(timeInSeconds) {
     const minutes = Math.floor(timeInSeconds / 60);
@@ -269,28 +271,35 @@ useEffect(() => {
 useEffect(() => {
   const handlePauseOverlay = (event) => {
     const playerState = event.data;
-
-    if (playerState === window.YT.PlayerState.PAUSED) {
-      // Show your custom overlay immediately
-      pauseOverlayRef.current.style.opacity = '0';
-      pauseContainerRef.current.style.zIndex = '0';
-      customOverlayRef.current.style.display = 'block';
-    } else {
-      // Add a delay before hiding your custom overlay when playing
-      setTimeout(() => {
-        pauseOverlayRef.current.style.opacity = '1';
-        pauseContainerRef.current.style.zIndex = '41';
-        customOverlayRef.current.style.display = 'none';
-      }, 1000); // Adjust the delay time (in milliseconds) as needed
+  
+    // Check if the player is ready
+    if (player && playerState !== undefined) {
+      if (playerState === window.YT.PlayerState.PAUSED) {
+        // Show your custom overlay immediately
+        pauseOverlayRef.current.style.opacity = '0';
+        pauseContainerRef.current.style.zIndex = '0';
+        customOverlayRef.current.style.display = 'block';
+      } else {
+        // Hide your custom overlay after a delay when playing
+        setTimeout(() => {
+          pauseOverlayRef.current.style.opacity = '1';
+          pauseContainerRef.current.style.zIndex = '41';
+          customOverlayRef.current.style.display = 'none';
+        }, 1000); // Adjust the delay time (in milliseconds) as needed
+      }
     }
   };
-
+  
+  
   // Add an event listener only if the player is available
   if (player) {
     player.addEventListener('onStateChange', handlePauseOverlay);
   }
 
   return () => {
+    // Clear the timeout when the component is unmounted
+    clearTimeout(customOverlayTimeout);
+
     // Remove the event listener when the component is unmounted
     if (player && typeof player.removeEventListener === "function") {
       player.removeEventListener('onStateChange', handlePauseOverlay);
@@ -299,11 +308,13 @@ useEffect(() => {
 }, [player]);
 
 
+
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
      
       <div className="video-container js-media-container js-video-container" style={style}>
-      <div className="custom-overlay" ref={customOverlayRef} >
+      <div className="custom-overlay" ref={customOverlayRef} style={customOverlayStyle} >
 
   {/* Your custom suggestions content goes here */}
 </div>

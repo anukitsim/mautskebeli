@@ -39,8 +39,8 @@ const DonationPopup = ({ onClose }) => {
   }, [onClose]);
 
   return (
-    <div className="donation-modal-overlay">
-      <div className="donation-modal" ref={donationModalRef}>
+    <div className="donation-modal-overlay ">
+      <div className="donation-modal  bg-gradient-to-r from-[#D2D4DC] to-[#E0DBE8]" ref={donationModalRef}>
         {/* Close button at the top of the modal with delayed appearance */}
         {showCloseButton && (
           <button className="close-button" onClick={onClose}>

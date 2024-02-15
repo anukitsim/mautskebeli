@@ -3,7 +3,7 @@ import Link from "next/link";
 
 const Header = () => {
   return (
-    <header className="h-20 w-full  flex bg-white items-center  justify-between z-50">
+    <header className="h-20 w-full  flex bg-[#D2D4DC] items-center  justify-between z-50">
       <div className="w-11/12 flex flex-row justify-between mx-auto items-center">
         <Link href='/'>
           <Image src="/images/logo.png" alt="logo" width={116} height={32} />
