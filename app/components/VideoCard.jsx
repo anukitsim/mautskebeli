@@ -1,32 +1,35 @@
-// VideoCard.jsx
+"use client"
 
-"use client";
-import Link from 'next/link';
 import React, { useState } from 'react';
 
-const PlayButton = () => (
-  <img src='/images/playbuttontest.svg' alt='playbutton' width={70} height={70} />
+const PlayButton = ({ onClick }) => (
+  <img
+    src='/images/playbuttontest.svg'
+    alt='play button'
+    width={70}
+    height={70}
+
+  />
 );
 
-const VideoCard = ({ videoId, caption }) => {
+const VideoCard = ({ videoId, caption, onSelect }) => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
 
   const openModal = () => {
     setModalIsOpen(true);
   };
 
-  const closeModal = () => {
-    setModalIsOpen(false);
-  };
-
-  // Remove any additional query parameters from videoId
   const sanitizedVideoId = videoId ? videoId.split('&')[0] : '';
-  // Construct the thumbnail URL using the maxresdefault.jpg quality
   const thumbnailUrl = `https://img.youtube.com/vi/${sanitizedVideoId}/hqdefault.jpg`;
 
-
-
-  
+  const handleClick = (e) => {
+    e.stopPropagation(); // Prevent the card click from propagating
+    if (typeof onSelect === 'function') {
+      onSelect(videoId);
+    } else {
+      console.error('onSelect prop is not provided or not a function');
+    }
+  };
 
   return (
     <div
@@ -36,7 +39,7 @@ const VideoCard = ({ videoId, caption }) => {
         height: '320px',
         borderRadius: '10px',
         border: '3px solid #8C74B2',
-        backgroundColor: '#D2D4DC',
+        background: 'linear-gradient(to bottom right, #E0DBE8, #D2D4DC)',
         overflow: 'hidden',
         zIndex: 1,
       }}
@@ -55,18 +58,15 @@ const VideoCard = ({ videoId, caption }) => {
           left: '50%',
           transform: 'translate(-50%, -50%)',
           cursor: 'pointer',
-          width: '50px',
-          height: '50px'
+          width: '70px', // Match PlayButton size for accurate click area
+          height: '70px'
         }}
-        onClick={openModal}
       >
-        <PlayButton />
+   <PlayButton />
       </div>
       <p className='mt-[8px]'>
         {caption}
       </p>
-
-     
     </div>
   );
 };

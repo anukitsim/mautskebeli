@@ -3,7 +3,7 @@ import Link from "next/link";
 
 const Header = () => {
   return (
-    <header className="h-20 w-full  flex bg-[#D2D4DC] items-center  justify-between z-50">
+    <header className="h-20 w-full flex items-center justify-between z-50" style={{ background: 'linear-gradient(to bottom right, #E0DBE8, #D2D4DC)' }}>
       <div className="w-11/12 flex flex-row justify-between mx-auto items-center">
         <Link href='/'>
           <Image src="/images/logo.png" alt="logo" width={116} height={32} />
@@ -11,7 +11,7 @@ const Header = () => {
 
         <ul className="flex gap-8">
           <Link
-            href="#"
+            href="/live"
             className="flex gap-2.5 text-xs justify-center items-center"
           >
             <Image

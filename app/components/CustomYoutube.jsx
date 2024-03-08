@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import RandomVideo from "./RandomVideo";
+import MoreVideos from "./MoreVideos";
+import RandomVideo from "./HomePageVideoContainer";
 
 
-export default function CustomYoutubePlayer({ videoId, onClose, style, customOverlayStyle }) {
+export default function CustomYoutubePlayer({ videoUrl ,videoId, onClose, style, customOverlayStyle }) {
   const playerRef = useRef(null);
   const volumeControlRef = useRef(null);
 
@@ -315,11 +316,21 @@ useEffect(() => {
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
      
-      <div className="video-container js-media-container js-video-container" style={style}>
+      <div className="video-container js-media-container js-video-container"   style={{ 
+  ...style,
+  boxShadow: "10px 10px 30px 10px #767676"
+}}>
       <div className="custom-overlay" ref={customOverlayRef} style={customOverlayStyle} >
         <div className="flex flex-row justify-between pr-5 pt-5">
-        <h1 className="p-5 text-black">ასევე იხილეთ</h1>
-<RandomVideo />
+<div className="flex flex-col items-center">
+<h1 className="p-5 text-black whitespace-nowrap">ასევე იხილეთ</h1>
+        <img src="/images/youtube-link.svg" className="w-[100px]" />
+</div>
+
+      
+      <MoreVideos />
+      
+
         </div>
 
 </div>

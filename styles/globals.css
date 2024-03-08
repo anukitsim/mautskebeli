@@ -21,11 +21,11 @@
 
 
 body {
-margin: 0;
-padding: 0;
-box-sizing: border-box;
-font-family: Noto Sans Georgian;
-background-color: #D2D4DC;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Noto Sans Georgian', sans-serif;
+  background: linear-gradient(to bottom right, #E0DBE8, #D2D4DC);
 }
 
 
@@ -555,3 +555,53 @@ input[type="range"]::-moz-focus-outer {
   z-index: 100;
   
 }
+
+.overlayActive {
+  opacity: 1;
+  visibility: visible;
+}
+
+.overlayInactive {
+  opacity: 0;
+  visibility: hidden;
+  transition-delay: 0.7s; /* Adjust the delay to your preference */
+}
+
+.text {
+  transition-delay: 0.2s; /* Adjust the delay to match the overlay transition */
+}
+
+
+.video-container-fb {
+  position: relative;
+  width: 100%; /* Full width to be responsive */
+  padding-top: 156%; /* Default aspect ratio (16:9) - adjust as needed */
+  overflow: hidden;
+}
+
+.video-container-fb iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* Preserve aspect ratio */
+}
+
+
+
+
+
+.video-thumbnail {
+  width: 100%;
+  padding-top: 56.25%;
+  background-size: cover;
+  background-position: center;
+}
+
+.video-title {
+  color: #333;
+  margin-top: 8px; /* Adjust as needed */
+}
+
+

@@ -4,8 +4,8 @@ import React, { useState } from "react";
 import Header from "../components/Header";
 import Navigation from "../components/Navigation";
 import HomePageMain from "../components/HomePageMain";
-import HomePageVideoContainer from "../components/HomePageVideoContainer";
-import Articles from "./Articles";
+import HomePageVideoContainer from "./HomePageVideoContainer";
+
 
 import DonationPopup from "../components/DonationPopup";
 import HomePagePodcast from "./HomePagePodcast";
@@ -28,7 +28,7 @@ const Home = () => {
       <div>
         <HomePageMain />
         <HomePageVideoContainer />
-       <Articles />
+     
        <HomePagePodcast />
        <MautskebeliGirchevt />
       </div>

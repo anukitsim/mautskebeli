@@ -6,7 +6,7 @@ const Navigation = () => {
       <ul className="w-6/12 justify-start text-white text-sm whitespace-nowrap flex  gap-8">
         <Link href='/'>მთავარი</Link>
         <Link href='#'>ტექსტი</Link>
-        <Link href='#'>პოდკასტი</Link>
+        <Link href='/podcast'>პოდკასტი</Link>
         <Link href='#'>სპორტი</Link>
         <Link href='#'>ჩვენს შესახებ</Link>
         
