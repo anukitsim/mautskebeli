@@ -6,8 +6,15 @@ import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Donation from "../donation/page";
 
-const DonationPopup = ({ onClose }) => {
+const DonationPopup = ({}) => {
   const [showCloseButton, setShowCloseButton] = useState(false);
+  const [showDonationPopup, setShowDonationPopup] = useState(true);
+
+  // Function to close the donation popup
+  const closeDonationPopup = () => {
+    setShowDonationPopup(false);
+  };
+
   const donationModalRef = useRef(null);
 
   // Function to show the close button after a delay
@@ -24,7 +31,7 @@ const DonationPopup = ({ onClose }) => {
   // Event listener to close the donation popup when clicking outside the modal
   const handleOverlayClick = (e) => {
     if (donationModalRef.current && !donationModalRef.current.contains(e.target)) {
-      onClose();
+      closeDonationPopup();
     }
   };
 
@@ -36,14 +43,16 @@ const DonationPopup = ({ onClose }) => {
     return () => {
       document.removeEventListener("click", handleOverlayClick);
     };
-  }, [onClose]);
+  }, [showDonationPopup]);
+
+  if (!showDonationPopup) return null
 
   return (
     <div className="donation-modal-overlay ">
       <div className="donation-modal  bg-gradient-to-r from-[#D2D4DC] to-[#E0DBE8]" ref={donationModalRef}>
         {/* Close button at the top of the modal with delayed appearance */}
         {showCloseButton && (
-          <button className="close-button" onClick={onClose}>
+          <button className="close-button" onClick={closeDonationPopup}>
             <Image src='/images/cross.svg' alt='close' width={30} height={30} />
           </button>
         )}

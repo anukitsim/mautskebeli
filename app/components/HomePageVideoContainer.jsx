@@ -1,3 +1,4 @@
+"use client"
 import Modal from 'react-modal';
 import Image from 'next/image';
 import React, { useEffect, useState, useCallback } from 'react';

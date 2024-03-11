@@ -1,6 +1,4 @@
-"use client"
-
-import React, { useState } from "react";
+import React from "react";
 import Header from "../components/Header";
 import Navigation from "../components/Navigation";
 import HomePageMain from "../components/HomePageMain";
@@ -12,13 +10,6 @@ import HomePagePodcast from "./HomePagePodcast";
 import MautskebeliGirchevt from "./MautskebeliGirchevt";
 
 const Home = () => {
-  const [showDonationPopup, setShowDonationPopup] = useState(true);
-
-  // Function to close the donation popup
-  const closeDonationPopup = () => {
-    setShowDonationPopup(false);
-  };
-
   return (
     <main>
       <div className="sticky top-0 z-50">
@@ -34,7 +25,7 @@ const Home = () => {
       </div>
 
       {/* Overlaying modal for the donation popup */}
-      {showDonationPopup && <DonationPopup onClose={closeDonationPopup} />}
+      <DonationPopup/>
     </main>
   );
 };

@@ -3,15 +3,18 @@ import { NextResponse } from "next/server";
 export async function POST(req, res) {
   try {
     const request = await req.json();
-    const user_access_token = process.env.NEXT_PUBLIC_FACEBOOK_ACCESS_TOKEN;
-    const { pageId, isPageToken=false,page_access_token } = request;
+    const { pageId, isPageToken = false, page_access_token } = request;
 
     const baseEndpoint = isPageToken
       ? `https://graph.facebook.com/v13.0/${pageId}`
       : "https://graph.facebook.com/v13.0/me";
 
     const response = await fetch(
-      `${baseEndpoint}/posts?fields=message,attachments{caption,media,type,subattachments{media}},stream_status&access_token=${page_access_token}`
+      `${baseEndpoint}/posts?fields=message,attachments{caption,media,type,subattachments{media}},stream_status&access_token=${page_access_token}`, {
+        next: {
+          revalidate: 3600
+        }
+      }
     );
     const data = await response.json();
 
