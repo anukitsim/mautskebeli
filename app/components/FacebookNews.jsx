@@ -19,7 +19,7 @@ const FacebookNews = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
+      try { const user_access_token = process.env.NEXT_PUBLIC_FACEBOOK_ACCESS_TOKEN;
         // Use your actual user access token and page ID
         const pageId = "480323335835739";
         const response = await fetch("/api/facebook-access-token-endpoint", {
@@ -27,7 +27,7 @@ const FacebookNews = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ page_id: pageId }),
+          body: JSON.stringify({ page_id: pageId ,user_access_token:user_access_token}),
         });
         const { page_access_token } = await response.json();
         if (page_access_token) {
