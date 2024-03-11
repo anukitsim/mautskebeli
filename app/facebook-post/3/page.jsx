@@ -13,16 +13,15 @@ const PostPage = () => {
     const fetchData = async () => {
       try {
         // Use your actual user access token and page ID
-        const userAccessToken = process.env.NEXT_PUBLIC_FACEBOOK_ACCESS_TOKEN;
         const pageId = '480323335835739';
 
-        const pageAccessTokenEndpoint = 'http://localhost:3001/facebook-access-token-endpoint';
+        const pageAccessTokenEndpoint = '/api/facebook-access-token-endpoint';
         const pageAccessTokenResponse = await fetch(pageAccessTokenEndpoint, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ user_access_token: userAccessToken, page_id: pageId }),
+          body: JSON.stringify({ page_id: pageId }),
         });
 
         const { page_access_token } = await pageAccessTokenResponse.json();

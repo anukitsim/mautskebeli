@@ -2,7 +2,8 @@
 
 const fetchPageAccessToken = async (userAccessToken, pageId) => {
     try {
-        const response = await fetch(`http://localhost:3001/facebook-access-token-endpoint`, {
+        const userAccessToken = process.env.NEXT_PUBLIC_FACEBOOK_ACCESS_TOKEN;
+        const response = await fetch(`/api/facebook-access-token-endpoint`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
