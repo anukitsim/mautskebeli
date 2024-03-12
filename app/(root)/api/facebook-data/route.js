@@ -12,7 +12,7 @@ export async function POST(req, res) {
     const response = await fetch(
       `${baseEndpoint}/posts?fields=message,attachments{caption,media,type,subattachments{media}},stream_status&access_token=${page_access_token}`, {
         next: {
-          revalidate: 3600
+          revalidate: 600
         }
       }
     );

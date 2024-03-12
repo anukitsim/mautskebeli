@@ -22,7 +22,7 @@ const FacebookNews = async () => {
       `${protocol}://${host}/api/facebook-access-token-endpoint`,
       {
         next: {
-          revalidate: 3600,
+          revalidate: 600,
         },
         method: "POST",
         headers: {
@@ -42,7 +42,7 @@ const FacebookNews = async () => {
         `${protocol}://${host}/api/facebook-data`,
         {
           next: {
-            revalidate: 3600,
+            revalidate: 600,
           },
           method: "POST",
           headers: {

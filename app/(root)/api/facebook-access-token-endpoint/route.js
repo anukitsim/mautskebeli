@@ -9,7 +9,7 @@ export async function POST(req, res) {
       `https://graph.facebook.com/v13.0/${page_id}?fields=access_token&access_token=${user_access_token}`,
       {
         next: {
-          revalidate: 3600,
+          revalidate: 600,
         },
       }
     );

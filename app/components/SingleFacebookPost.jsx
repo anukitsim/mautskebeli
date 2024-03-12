@@ -1,58 +1,84 @@
-"use client"
+import React from "react";
+import { headers } from "next/headers";
 
-import React, { useEffect, useState } from 'react';
-import fetchFacebookData from '../utils/fetchFacebookData';
-
-const SingleFacebookPost = ({ postId }) => {
-  const [post, setPost] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch data for the specific post using the postId
-        const accessToken = 'EAAZA3GvirehkBOZB6YlSOkRmJenxU8mRqZB1SqreyzZBmLTFYZB3cuGChNbRaNyuhYxSwDXypyGSybG3OXRiKznUxTJUCYNGbTGS0XllYmybZAF14ZCtEPHEXFEZCdD2f1iyCPyL5rYvyJo87AI3LZBOA4GVsTsJqTTus7EQ75Xjp1zZCZCsIQJHRbA1qevdQ6Py4ZCNxIXyKfNOkheSp5B6dnqusmqCg5ZBBZCR1HBtiaS7X7'; // Replace with your access token
-        const data = await fetchFacebookData(accessToken, postId);
-
-        if (data.error) {
-          throw new Error(`Facebook API Error: ${data.error.message}`);
-        }
-
-        console.log('Fetched post data:', data);
-        setPost(data[0]); // Assuming the data structure is an array with one post
-      } catch (error) {
-        console.error('Error fetching post data:', error.message);
-        setError('Error fetching post data. Please try again later.');
-      } finally {
-        setIsLoading(false);
+const SingleFacebookPost = async ({ postId }) => {
+  try {
+    let post, isloading, error;
+    const host = headers().get("host");
+    const protocol = process?.env.NODE_ENV === "development" ? "http" : "https";
+    const user_access_token = process.env.NEXT_PUBLIC_FACEBOOK_ACCESS_TOKEN;
+    const response = await fetch(
+      `${protocol}://${host}/api/facebook-access-token-endpoint`,
+      {
+        next: {
+          revalidate: 600,
+        },
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          page_id: postId,
+        user_access_token: user_access_token,
+        }),
       }
-    };
+    );
+    const { page_access_token } = await response.json();
+    if (page_access_token) {
 
-    fetchData();
-  }, [postId]);
+      const secondResponse = await fetch(
+        `${protocol}://${host}/api/facebook-data`,
+        {
+          next: {
+            revalidate: 600,
+          },
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            pageId: postId,
+            page_access_token,
+          }),
+        }
+      );
 
-  console.log('Component re-rendered. Post:', post);
-
-  if (isLoading) {
-    return <p>Loading...</p>;
+      const { data } = await secondResponse.json();
+      if (data.error) {
+        throw new Error(`Facebook API Error: ${data.error.message}`);
+      }
+      console.log("Fetched post data:", data);
+      post = data[0]; // Assuming the data structure is an array with one post
+    } else {
+      error = "no access token generated";
+    }
+    if (isloading) {
+      return <p>Loading...</p>;
+    }
+    if (error) {
+      return <p>Error: {error}</p>;
+    }
+    return (
+      <div>
+        {post && (
+          <>
+            <img
+              src={post.attachments?.data[0]?.media?.image?.src}
+              alt="Post Image"
+            />
+            <p>
+              {post.message ||
+                post.attachments?.data[0]?.caption ||
+                "No Caption"}
+            </p>
+            {/* Additional content rendering goes here */}
+          </>
+        )}
+      </div>
+    );
+  } catch (error) {
+    error = "Error fetching post data. Please try again later.";
   }
-
-  if (error) {
-    return <p>{error}</p>;
-  }
-
-  return (
-    <div>
-      {post && (
-        <>
-          <img src={post.attachments?.data[0]?.media?.image?.src} alt="Post Image" />
-          <p>{post.message || post.attachments?.data[0]?.caption || 'No Caption'}</p>
-          {/* Additional content rendering goes here */}
-        </>
-      )}
-    </div>
-  );
 };
 
 export default SingleFacebookPost;

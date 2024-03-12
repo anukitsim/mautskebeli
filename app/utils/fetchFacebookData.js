@@ -8,7 +8,7 @@ const fetchFacebookData = async (accessToken, pageId, isPageToken) => {
       `${baseEndpoint}/posts?fields=message,attachments{caption,media,type,subattachments{media}},stream_status&access_token=${accessToken}`,
       {
         next: {
-          revalidate: 3600,
+          revalidate: 600,
         },
       }
     );

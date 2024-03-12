@@ -8,7 +8,6 @@ import Navigation from "../components/Navigation";
 const Live = () => {
   const [liveVideos, setLiveVideos] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [showArchive, setShowArchive] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState(null);
 
   const pageAccessToken = process.env.NEXT_PUBLIC_FACEBOOK_ACCESS_TOKEN;
@@ -25,7 +24,7 @@ const Live = () => {
         try {
           const response = await fetch(url, {
             next: {
-              revalidate: 3600,
+              revalidate: 600,
             },
           });
           const data = await response.json();
@@ -57,6 +56,7 @@ const Live = () => {
   if (isLoading) {
     return <div className="p-5">Loading...</div>;
   }
+  console.log(liveVideos);
   return (
     <div>
       <div className="sticky top-0 z-50 overflow-hidden">
