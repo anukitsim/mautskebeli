@@ -130,7 +130,7 @@ const Podcast = () => {
               key={video.id || index}
               videoId={video.id}
               caption={video.snippet.title}
-              onClick={handleVideoCardClick}
+              onSelect={handleVideoCardClick}
               isSelected={video.id === selectedVideoId}
             />
           ))}
