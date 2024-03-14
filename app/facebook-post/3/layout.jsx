@@ -1,6 +1,7 @@
 import "../../../styles/globals.css";
-import Header from "@/app/components/Header";
-import Navigation from "@/app/components/Navigation";
+
+import Header from "../../components/Header";
+import Navigation from "../../components/Navigation";
 
 export const metadata = {
   title: "Create Next App",

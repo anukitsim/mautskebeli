@@ -1,7 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import { headers } from "next/headers";
-import AlbumSlider from "@/app/components/AlbumSlider";
+import AlbumSlider from "../../components/AlbumSlider";
 
 const PostPage = async () => {
   try {
