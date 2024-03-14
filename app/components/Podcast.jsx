@@ -15,7 +15,10 @@ const Podcast = async () => {
     const playlistId = "PL8wF1aEA4P8NJZUazilLH7ES-T-RQd3Cy";
 
     const response = await fetch(
-      `https://youtube.com/channel/${channelId}/live`
+      `https://youtube.com/channel/UC6TjRdvXOknZBbtXiePp1HA/live`,
+      {
+        redirect: "follow"
+      }
     );
     const text = await response.text();
     const html = parse(text);
