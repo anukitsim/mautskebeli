@@ -9,10 +9,9 @@ const PlayButton = ({}) => (
   />
 );
 
-const VideoCard = ({ videoId, caption, onSelect }) => {
-  const sanitizedVideoId = videoId ? videoId.split("&")[0] : "";
-  const thumbnailUrl = `https://img.youtube.com/vi/${sanitizedVideoId}/hqdefault.jpg`;
-
+const VideoCard = ({ videoId, caption, onSelect,isLive =false}) => {
+  const thumbnailUrl= ` https://img.youtube.com/vi/${videoId}/0.jpg`
+ 
   const handleClick = (e) => {
     e.stopPropagation(); // Prevent the card click from propagating
     if (typeof onSelect === "function") {
@@ -21,7 +20,7 @@ const VideoCard = ({ videoId, caption, onSelect }) => {
       console.error("onSelect prop is not provided or not a function");
     }
   };
-
+  
   return (
     <div
       onClick={handleClick}
@@ -37,6 +36,11 @@ const VideoCard = ({ videoId, caption, onSelect }) => {
       }}
       className="flex flex-col p-[10px]"
     >
+     {
+      isLive && 
+      <p className="bg-red-500 text-white w-fit px-2">
+      LIVE
+    </p>} 
       <img
         src={thumbnailUrl}
         alt="Video Thumbnail"
