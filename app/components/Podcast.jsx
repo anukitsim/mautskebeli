@@ -34,36 +34,34 @@ const Podcast = () => {
 
   useEffect(() => {
     const checkLiveStatus = async () => {
-      try {
-        const myHeaders = new Headers();
-        myHeaders.append("Content-Type", "application/json");
-
-        const raw = JSON.stringify({
-          channelId,
-        });
-
-        const response = await fetch(`/api/get-youtube-live-feed-id`, {
-          method: "POST",
-          headers: myHeaders,
-          body: raw,
-          redirect: "follow",
-        });
-
-        const {
-          data: { stream, isStreaming },
-        } = await response.json();
-
-        setIsLive(isStreaming);
-        setLiveStream(stream);
-        if (isStreaming) {
-          setSelectedVideoId(stream?.id);
-          setCustomPlayerKey((prevKey) => prevKey + 1);
-        }
-        setLoading(false);
-      } catch (error) {
-        console.log(error);
-        setIsLive(false);
-        setLoading(false);
+      if(!isLive){
+        try {
+          const myHeaders = new Headers();
+          myHeaders.append("Content-Type", "application/json");
+  
+          const raw = JSON.stringify({
+            channelId,
+          });
+  
+          const response = await fetch(`/api/get-youtube-live-feed-id`, {
+            method: "POST",
+            headers: myHeaders,
+            body: raw,
+            redirect: "follow",
+          });
+  
+          const {
+            data: { stream, isStreaming },
+          } = await response.json();
+  
+          setIsLive(isStreaming);
+          setLiveStream(stream);
+          setLoading(false);
+        } catch (error) {
+          console.log(error);
+          setIsLive(false);
+          setLoading(false);
+        }  
       }
     };
 
@@ -117,6 +115,12 @@ const Podcast = () => {
     fetchVideos();
   }, [apiKey, playlistId]);
 
+  useEffect(()=>{
+    if(isLive){
+        setSelectedVideoId(liveStream?.id);
+        setCustomPlayerKey((prevKey) => prevKey + 1);
+    }
+  },[isLive])
 
    if (loading) {
       return (
@@ -126,8 +130,6 @@ const Podcast = () => {
       );
     }
 
-console.log(videos);
-console.log(selectedVideoId);
   return (
     <div style={{ display: "flex" }}>
       <div style={{ flex: "3", paddingLeft: "20px" }}>
