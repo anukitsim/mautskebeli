@@ -69,7 +69,7 @@ const Buttons = ({ isAnonymous, state, setError }) => {
                 email
               } Donation`,
               amount: {
-                value: Number(otherAmount) + amount,
+                value: total,
               },
             },
           ],
