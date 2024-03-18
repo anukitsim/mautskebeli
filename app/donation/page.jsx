@@ -2,28 +2,31 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import { PayPalButtons } from "@paypal/react-paypal-js";
 
-const OvalButton = ({ value, onChange }) => {
-  const [amount, setAmount] = useState(value || 5);
-
+const OvalButton = ({ amount, setAmount }) => {
   const handleIncrement = () => {
     if (amount < 100) {
-      setAmount(amount + 1);
-      onChange(amount + 1);
+      setAmount((prev) => ({
+        ...prev,
+        amount: amount + 1,
+      }));
     }
   };
 
   const handleDecrement = () => {
     if (amount > 5) {
-      setAmount(amount - 1);
-      onChange(amount - 1);
+      setAmount((prev) => ({
+        ...prev,
+        amount: amount - 1,
+      }));
     }
   };
 
   return (
     <div className="flex items-center relative">
       <div
-        className="flex items-center justify-center cursor-pointer absolute left-5"
+        className="flex items-center justify-center cursor-pointer absolute left-3"
         onClick={handleDecrement}
       >
         <Image src="/images/minus.png" alt="minus" width={24} height={24} />
@@ -32,18 +35,17 @@ const OvalButton = ({ value, onChange }) => {
         type="text"
         inputMode="numeric"
         pattern="[0-9]*"
-        className="border border-[#CBCBCB] text-center mx-4 w-[131px] h-[40px] rounded-[40px]"
+        className="border border-[#CBCBCB] text-center w-full h-[40px] rounded-[40px]"
         value={amount}
         onChange={(e) => {
           const newValue = parseInt(e.target.value, 10);
           if (!isNaN(newValue) && newValue >= 5 && newValue <= 100) {
             setAmount(newValue);
-            onChange(newValue);
           }
         }}
       />
       <div
-        className=" flex items-center justify-center cursor-pointer absolute right-5"
+        className=" flex items-center justify-center cursor-pointer absolute right-3"
         onClick={handleIncrement}
       >
         <Image src="/images/plus.png" alt="minus" width={24} height={24} />
@@ -51,51 +53,131 @@ const OvalButton = ({ value, onChange }) => {
     </div>
   );
 };
+
+const Buttons = ({ isAnonymous, state, setError }) => {
+  const { name, otherAmount, amount , email} = state
+  const total = Number(otherAmount) + amount
+  return (
+    <PayPalButtons
+      key={total}
+      className="h-[45px]"
+      createOrder={(_, actions) => {
+        return actions.order.create({
+          purchase_units: [
+            {
+              description: `${!isAnonymous ? name : "Anonymous"} ${
+                email
+              } Donation`,
+              amount: {
+                value: Number(otherAmount) + amount,
+              },
+            },
+          ],
+        });
+      }}
+      onError={(err) => {
+        setError(err);
+        console.error("PayPal Checkout onError", err);
+      }}
+      fundingSource="paypal"
+      style={{ layout: "vertical" }}
+      disabled={false}
+      forceReRender={{ layout: "vertical" }}
+      onApprove={async (data, actions) => {
+        const order = await actions.order.capture();
+        console.log("order", order);
+        handleApprove(data.orderID);
+      }}
+    />
+  );
+};
+
 const Donation = () => {
+  const [state, setState] = useState({
+    amount: 5,
+    otherAmount: 0,
+    name: "",
+    email: "",
+    totalAmount: 0,
+  });
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [hasApproved, setHasApproved] = useState(false);
+  const [paidFor, setPaidFor] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleAnonymousChange = () => {
     setIsAnonymous(!isAnonymous);
   };
 
-  const handleApprovedChange = () => {
-    setHasApproved(!hasApproved);
+  const handleApprove = (orderId) => {
+    // Call backend function to fulfill order
+
+    // if response is success
+    setPaidFor(true);
+    // Refresh user's account or subscription status
+
+    // if response is error
+    // alert("Your payment was processed successfully. However, we are unable to fulfill your purchase. Please contact us at support@designcode.io for assistance.");
   };
 
-  const handleAmountChange = (amount) => {
-    // Handle the amount change here, e.g., update state or perform other actions
-    console.log('New amount:', amount);
-  };
+  if (paidFor) {
+    // Display success message, modal or redirect user to success page
+    alert("Thank you for your purchase!");
+  }
 
+  if (error) {
+    // Display error message, modal or redirect user to error page
+    alert(error);
+  }
 
   return (
-    <div className="flex w-[380px] bg-gradient-to-r from-[#D2D4DC] to-[#E0DBE8] border border-[#CBCBCB] gap-[12px] mx-auto flex-col pt-[18px] items-center mt-10 rounded-[12px] ">
-       <div className='flex flex-row gap-[119px]'>
-        <h2 className='text-[#767676] text-[14px] font-medium'>ოდენობა</h2>
-      <h2 className='text-[#767676] text-[14px] font-medium'>სხვა თანხა</h2>
+    <div className="flex w-[380px] bg-gradient-to-r from-[#D2D4DC] to-[#E0DBE8] border border-[#CBCBCB] gap-[12px] mx-auto flex-col py-[18px] items-center rounded-[12px] ">
+      <form className="w-full pl-[18px] pr-[18px] ">
+        <div className="flex flex-row w-full gap-2 items-start mb-4">
+          <div className="w-2/4">
+            <h2 className="text-[#767676] text-[14px] font-medium mb-3">
+              ოდენობა amount
+            </h2>
+            <OvalButton amount={state.amount} setAmount={setState} />
+          </div>
+          <div className="w-2/4">
+            <h2 className="text-[#767676] text-[14px] font-medium">
+              სხვა თანხა
+            </h2>
+            <input
+              type="number"
+              className="border border-[#CBCBCB] w-full mt-3 h-[40px] rounded-[6px] pl-[24px] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+              placeholder="სხვა თანხა other amount"
+              value={state.otherAmount}
+              onChange={(e) =>
+                setState((prev) => ({
+                  ...prev,
+                  otherAmount: e.target.value,
+                }))
+              }
+            />
+          </div>
         </div>
-        <div className='flex flex-row w-full justify-around  items-start'>
-        <OvalButton value={5} onChange={handleAmountChange} />
-        <input
-          type='text'
-          className='border border-[#CBCBCB] text-center mx-4 w-[92px] h-[40px] rounded-[6px]'
-        
-        />
-      </div>
-      <form className="w-full mt-[24px] pl-[18px] pr-[18px] ">
         <h2 className="text-[#767676] text-[14px] font-medium">
-          პირადი ინფორმაცია
+          პირადი ინფორმაცია Personal Information
         </h2>
         <input
           type="text"
+          disabled={isAnonymous}
           className="w-[340px] border border-[#CBCBCB] text-[#000] text-[14px] rounded-[6px] pt-[12px] pb-[12px] pl-[24px] h-[44px] mt-[12px] flex justify-center"
-          placeholder="სახელი"
+          placeholder="სახელი name"
+          value={isAnonymous ? "" : state.name}
+          onChange={(e) =>
+            setState((prev) => ({
+              ...prev,
+              name: e.target.value,
+            }))
+          }
         />
 
         {/* Custom radio button (styled checkbox) and text for "ანონიმურად" */}
         <div className="flex items-center mt-4">
-        <input
+          <input
             type="checkbox"
             id="anonymous"
             checked={isAnonymous}
@@ -106,22 +188,30 @@ const Donation = () => {
             htmlFor="anonymous"
             className="text-[#000] text-[14px] cursor-pointer ml-2"
           >
-            ანონიმურად
+            ანონიმურად anonymously
           </label>
         </div>
 
         <input
-          type="text"
+          required
+          type="email"
           className="w-[340px] border border-[#CBCBCB] text-[#000] text-[14px] rounded-[6px] pt-[12px] pb-[12px] pl-[24px] h-[44px] mt-[12px] flex justify-center"
-          placeholder="ელ. ფოსტა"
+          placeholder="ელ. ფოსტა mail e-mail"
+          value={state.email}
+          onChange={(e) =>
+            setState((prev) => ({
+              ...prev,
+              email: e.target.value,
+            }))
+          }
         />
 
         {/* Custom radio button (styled checkbox) and text for "ანონიმურად" */}
         <div className="flex items-center mt-4">
-        <input
+          <input
             type="checkbox"
             id="approve"
-            onChange={handleApprovedChange}
+            onChange={() => setHasApproved(!hasApproved)}
             style={{ cursor: "pointer" }}
             required
           />
@@ -129,42 +219,38 @@ const Donation = () => {
             htmlFor="approve"
             className="text-[#000] text-[14px] cursor-pointer ml-2"
           >
-            ვეთანხმები წესებსა და პირობებს
+            ვეთანხმები წესებსა და პირობებს I agree to the terms and conditions
           </label>
         </div>
 
-        <h2 className="text-[#767676] text-[14px] font-medium mt-[24px]">
-          გადახდის მეთოდი
+        <h2 className="text-[#767676] text-[14px] font-medium mt-[24px] text-center">
+          გადახდის მეთოდი method of payment
         </h2>
         <div className="flex flex-col gap-[8px] mt-[10px] relative">
-       
-        <div className="flex items-center flex-row gap-[8px]">
-  <input
-    type='radio'
-    value='radio'
-    checked={!hasApproved}  // Set the checked attribute based on a condition
-    onChange={() => handleApprovedChange(false)}  // Handle change to set hasApproved state
-  />
-  <label className="flex items-center gap-[8px]">
-    <Image src='/images/paypal.png' alt="paypal" width={30} height={30} />
-    PayPal
-  </label>
-</div>
-        
-<div className="flex-row flex items-center whitespace-nowrap gap-[8px]">
-  <input
-    type='radio'
-    value='card'
-    checked={hasApproved}  // Set the checked attribute based on a condition
-    onChange={() => handleApprovedChange(true)}  // Handle change to set hasApproved state
-  />
-  <label className="flex items-center gap-[8px]">
-    <Image src='/images/card.png' alt="paypal" width={30} height={30} />
-    Credit/Debit card
-  </label>
-</div>
+          <div className="flex-row flex items-center whitespace-nowrap gap-[8px] bg-white py-2 justify-center w-full hover:bg-[#c4c4c4]">
+            <label className="flex items-center gap-[8px]">
+              <Image
+                src="/images/card.png"
+                alt="paypal"
+                width={30}
+                height={30}
+              />
+              Credit/Debit card
+            </label>
+          </div>
+          <h2 className="text-[#767676] text-[14px] font-medium text-center">
+            ან or
+          </h2>
+          <div className="relative">
+            <Buttons
+              {...{
+                setError,
+                state,
+                isAnonymous,
+              }}
+            />
+          </div>
         </div>
-       
       </form>
     </div>
   );

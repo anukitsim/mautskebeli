@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@paypal/react-paypal-js": "^8.1.4",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "dompurify": "^3.0.8",
