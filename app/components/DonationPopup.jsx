@@ -1,10 +1,9 @@
-"use client"
-
-
+"use client";
 
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Donation from "../donation/page";
+import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 
 const DonationPopup = ({}) => {
   const [showCloseButton, setShowCloseButton] = useState(false);
@@ -30,7 +29,10 @@ const DonationPopup = ({}) => {
 
   // Event listener to close the donation popup when clicking outside the modal
   const handleOverlayClick = (e) => {
-    if (donationModalRef.current && !donationModalRef.current.contains(e.target)) {
+    if (
+      donationModalRef.current &&
+      !donationModalRef.current.contains(e.target)
+    ) {
       closeDonationPopup();
     }
   };
@@ -45,18 +47,28 @@ const DonationPopup = ({}) => {
     };
   }, [showDonationPopup]);
 
-  if (!showDonationPopup) return null
+  if (!showDonationPopup) return null;
 
   return (
     <div className="donation-modal-overlay ">
-      <div className="donation-modal  bg-gradient-to-r from-[#D2D4DC] to-[#E0DBE8]" ref={donationModalRef}>
+      <div
+        className="donation-modal  bg-gradient-to-r from-[#D2D4DC] to-[#E0DBE8]"
+        ref={donationModalRef}
+      >
         {/* Close button at the top of the modal with delayed appearance */}
         {showCloseButton && (
           <button className="close-button" onClick={closeDonationPopup}>
-            <Image src='/images/cross.svg' alt='close' width={30} height={30} />
+            <Image src="/images/cross.svg" alt="close" width={30} height={30} />
           </button>
         )}
-        <Donation />
+        <PayPalScriptProvider
+          options={{
+            components: "buttons",
+            "client-id": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
+          }}
+        >
+          <Donation />
+        </PayPalScriptProvider>
       </div>
     </div>
   );
