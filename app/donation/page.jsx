@@ -54,7 +54,7 @@ const OvalButton = ({ amount, setAmount }) => {
   );
 };
 
-const Buttons = ({ isAnonymous, state, setError }) => {
+const Buttons = ({ isAnonymous, state, setError, handleApprove }) => {
   const { name, otherAmount, amount , email} = state
   const total = Number(otherAmount) + amount
   return (
