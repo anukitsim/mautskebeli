@@ -93,13 +93,14 @@ const Buttons = ({ isAnonymous, state, setError }) => {
 };
 
 const Donation = () => {
-  const [state, setState] = useState({
+  const initialState = {
     amount: 5,
     otherAmount: 0,
     name: "",
     email: "",
     totalAmount: 0,
-  });
+  }
+  const [state, setState] = useState(initialState);
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [hasApproved, setHasApproved] = useState(false);
   const [paidFor, setPaidFor] = useState(false);
@@ -122,6 +123,7 @@ const Donation = () => {
 
   if (paidFor) {
     // Display success message, modal or redirect user to success page
+    setState(initialState)
     alert("Thank you for your purchase!");
   }
 
@@ -247,6 +249,7 @@ const Donation = () => {
                 setError,
                 state,
                 isAnonymous,
+                handleApprove,
               }}
             />
           </div>
